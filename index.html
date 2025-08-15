@@ -1,0 +1,1662 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>画像放り込みシンプル表作成</title>
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts for web fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* Custom styles */
+        body {
+            font-family: 'Noto Sans JP', 'Roboto', sans-serif;
+            overflow: hidden; /* Prevent body scroll */
+        }
+        .canvas-container {
+            background-color: #f0f2f5;
+            cursor: default;
+        }
+        canvas {
+            background-color: #ffffff;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        /* Custom scrollbar for settings panel */
+        .settings-panel::-webkit-scrollbar { width: 6px; }
+        .settings-panel::-webkit-scrollbar-track { background: #f1f1f1; }
+        .settings-panel::-webkit-scrollbar-thumb { background: #888; border-radius: 3px; }
+        .settings-panel::-webkit-scrollbar-thumb:hover { background: #555; }
+        /* Hide default file input */
+        input[type="file"] { display: none; }
+        /* ★追加: 背景ドロップエリアのスタイル */
+        #background-drop-area {
+            border: 2px dashed #cbd5e1;
+            transition: background-color 0.2s;
+        }
+        #background-drop-area.dragover {
+            background-color: #e2e8f0;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 h-screen flex flex-col">
+
+    <!-- Top Bar -->
+    <header class="bg-white shadow-md p-2 flex items-center justify-between z-20">
+        <h1 class="text-xl font-bold text-gray-700" data-lang-key="app-title">画像放り込みシンプル表作成</h1>
+        <div class="flex items-center space-x-2">
+            <!-- 機能ボタン -->
+            <button id="export-image-btn" class="px-4 py-2 rounded-lg shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 text-white bg-gray-500 hover:bg-gray-600 focus:ring-gray-400" data-lang-key="export">画像出力</button>
+            <button id="help-btn" class="px-4 py-2 rounded-lg shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 text-white bg-gray-500 hover:bg-gray-600 focus:ring-gray-400" data-lang-key="help">操作方法</button>
+
+            <!-- 区切り線 -->
+            <div class="border-l h-6 border-gray-300 mx-2"></div>
+
+            <!-- プロジェクト操作ボタン -->
+            <button id="save-project-btn" class="px-4 py-2 rounded-lg shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 text-white bg-gray-500 hover:bg-gray-600 focus:ring-gray-400" data-lang-key="save">保存</button>
+            <label for="load-project-input" class="px-4 py-2 rounded-lg shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 text-white bg-gray-500 hover:bg-gray-600 focus:ring-gray-400 cursor-pointer" data-lang-key="load">呼び出し</label>
+            <input type="file" id="load-project-input" accept=".json">
+
+            <!-- 区切り線 -->
+            <div class="border-l h-6 border-gray-300 mx-2"></div>
+
+            <!-- 言語切り替えボタン -->
+            <button id="language-toggle-btn" class="px-4 py-2 rounded-lg shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 text-white bg-gray-500 hover:bg-gray-600 focus:ring-gray-400 w-24"></button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="flex flex-grow overflow-hidden">
+        <!-- Left Panel -->
+        <aside class="w-80 bg-white p-4 shadow-lg flex-shrink-0 overflow-y-auto settings-panel z-10">
+            <!-- Main Settings Panel -->
+            <div id="main-settings-panel">
+                <h2 class="text-lg font-bold mb-4 border-b pb-2" data-lang-key="settings-title">設定</h2>
+                <div class="space-y-4">
+                    <div class="border-t pt-4">
+                        <div class="flex items-center justify-between">
+                            <label for="title-visible-toggle" class="text-sm font-medium text-gray-700" data-lang-key="show-title">タイトルを表示</label>
+                            <input type="checkbox" id="title-visible-toggle" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                        </div>
+                    </div>
+                    <!-- ★修正: グリッド設定エリア -->
+                    <div class="border-t pt-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <label for="grid-visible-toggle" class="text-sm font-medium text-gray-700" data-lang-key="show-grid">グリッドを表示</label>
+                            <input type="checkbox" id="grid-visible-toggle" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                        </div>
+                        <div id="grid-settings">
+                            <label for="grid-size" class="block text-sm font-medium text-gray-700"><span data-lang-key="grid-width">グリッド幅</span>: <span id="grid-size-value">5</span>px</label>
+                            <input type="range" id="grid-size" min="5" max="50" value="5" step="5" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                        </div>
+                    </div>
+                    <div>
+                        <label for="max-img-size" class="block text-sm font-medium text-gray-700"><span data-lang-key="max-img-size">画像最大サイズ</span>: <span id="max-img-size-value">240</span>px</label>
+                        <input type="range" id="max-img-size" min="50" max="1000" value="240" step="5" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                    </div>
+                    <div class="border-t pt-4">
+                        <h3 class="text-md font-semibold mb-2" data-lang-key="img-frame-settings">画像フレーム設定</h3>
+                        <div class="flex items-center justify-between">
+                            <label for="img-border-toggle" class="text-sm font-medium text-gray-700" data-lang-key="enable-border">枠線をつける</label>
+                            <input type="checkbox" id="img-border-toggle" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                        </div>
+                        <div id="img-border-settings" class="mt-2 space-y-2 hidden">
+                            <div>
+                                <label for="img-border-width" class="block text-sm font-medium text-gray-700"><span data-lang-key="border-width">枠線の幅</span>: <span id="img-border-width-value">2</span>px</label>
+                                <input type="range" id="img-border-width" min="1" max="20" value="2" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                            </div>
+                            <div>
+                                <label for="img-border-color" class="block text-sm font-medium text-gray-700" data-lang-key="border-color">枠線の色</label>
+                                <input type="color" id="img-border-color" value="#000000" class="w-full h-8 p-1 border border-gray-300 rounded-lg">
+                            </div>
+                            <div>
+                                <label for="img-border-radius" class="block text-sm font-medium text-gray-700"><span data-lang-key="corner-radius">角の丸み</span>: <span id="img-border-radius-value">8</span>px</label>
+                                <input type="range" id="img-border-radius" min="0" max="50" value="8" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                            </div>
+                        </div>
+                    </div>
+                    <!-- ★追加: 背景設定エリア -->
+                    <div class="border-t pt-4">
+                        <h3 class="text-md font-semibold mb-2" data-lang-key="bg-settings">背景設定</h3>
+                        <div id="background-drop-area" class="p-4 rounded-lg text-center text-gray-500">
+                            <span data-lang-key="bg-drop-text">ここに背景画像をドロップ</span>
+                        </div>
+                        <div id="background-controls" class="mt-2 space-y-2">
+                             <div>
+                                <label for="bg-opacity" class="block text-sm font-medium text-gray-700"><span data-lang-key="bg-opacity">透過度</span>: <span id="bg-opacity-value">1</span></label>
+                                <input type="range" id="bg-opacity" min="0" max="1" step="0.05" value="1" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                            </div>
+                            <div>
+                                <label for="bg-scale" class="block text-sm font-medium text-gray-700"><span data-lang-key="bg-scale">拡大率</span>: <span id="bg-scale-value">1</span></label>
+                                <input type="range" id="bg-scale" min="0.1" max="5" step="0.1" value="1" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                            </div>
+                            <div>
+                                <label for="bg-pos-x" class="block text-sm font-medium text-gray-700"><span data-lang-key="bg-pos-x">X位置</span>: <span id="bg-pos-x-value">0</span>px</label>
+                                <input type="range" id="bg-pos-x" min="-1000" max="1000" value="0" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                            </div>
+                             <div>
+                                <label for="bg-pos-y" class="block text-sm font-medium text-gray-700"><span data-lang-key="bg-pos-y">Y位置</span>: <span id="bg-pos-y-value">0</span>px</label>
+                                <input type="range" id="bg-pos-y" min="-1000" max="1000" value="0" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="border-t pt-4">
+                        <button id="reset-settings-btn" class="w-full px-4 py-2 rounded-lg shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 bg-yellow-500 hover:bg-yellow-600 text-gray-800 focus:ring-yellow-400" data-lang-key="reset-settings">設定をデフォルトに戻す</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Title Editor Panel -->
+            <div id="title-editor-panel" class="hidden">
+                 <div class="flex justify-between items-center mb-4 border-b pb-2">
+                    <h2 class="text-lg font-bold" data-lang-key="title-edit-title">タイトル編集</h2>
+                    <button id="close-title-editor-btn" class="text-gray-500 hover:text-gray-800 text-2xl leading-none">&times;</button>
+                </div>
+                <div class="space-y-3">
+                    <div>
+                        <label for="title-content" class="block text-sm font-medium text-gray-700" data-lang-key="text">テキスト</label>
+                        <textarea id="title-content" rows="2" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"></textarea>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label for="title-font-size" class="block text-sm font-medium text-gray-700" data-lang-key="font-size">サイズ</label>
+                            <input type="number" id="title-font-size" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                        </div>
+                        <div>
+                            <label for="title-font-family" class="block text-sm font-medium text-gray-700" data-lang-key="font-family">フォント</label>
+                            <select id="title-font-family" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                                <option value="'Noto Sans JP', sans-serif">Noto Sans JP</option>
+                                <option value="'Roboto', sans-serif">Roboto</option>
+                                <option value="serif">Serif</option>
+                                <option value="monospace">Monospace</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label for="title-color" class="block text-sm font-medium text-gray-700" data-lang-key="text-color">文字色</label>
+                        <input type="color" id="title-color" class="w-full h-8 p-1 border border-gray-300 rounded-lg">
+                    </div>
+                    <div class="flex items-center">
+                        <input type="checkbox" id="title-bold" class="h-4 w-4 text-blue-600 border-gray-300 rounded">
+                        <label for="title-bold" class="ml-2 block text-sm text-gray-900" data-lang-key="bold">太字</label>
+                    </div>
+                     <div class="border-t pt-3">
+                        <h3 class="text-md font-semibold mb-2" data-lang-key="shadow">影</h3>
+                        <div class="flex items-center">
+                            <input type="checkbox" id="title-shadow-toggle" class="h-4 w-4 text-blue-600 border-gray-300 rounded">
+                            <label for="title-shadow-toggle" class="ml-2 block text-sm text-gray-900" data-lang-key="enable-shadow">影をつける</label>
+                        </div>
+                         <div id="title-shadow-settings" class="mt-2 space-y-2 hidden">
+                             <input type="color" id="title-shadow-color" class="w-full h-8 p-1 border border-gray-300 rounded-lg">
+                        </div>
+                    </div>
+                    <div class="border-t pt-3">
+                        <h3 class="text-md font-semibold mb-2" data-lang-key="stroke">縁取り</h3>
+                        <div class="flex items-center">
+                            <input type="checkbox" id="title-stroke-toggle" class="h-4 w-4 text-blue-600 border-gray-300 rounded">
+                            <label for="title-stroke-toggle" class="ml-2 block text-sm text-gray-900" data-lang-key="enable-stroke">縁取りをつける</label>
+                        </div>
+                        <div id="title-stroke-settings" class="mt-2 space-y-2 hidden">
+                            <input type="color" id="title-stroke-color" class="w-full h-8 p-1 border border-gray-300 rounded-lg">
+                            <input type="range" id="title-stroke-width" min="1" max="10" value="1" class="w-full h-2 bg-gray-200 rounded-lg">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Image Text Editor Panel -->
+            <div id="text-editor-panel" class="hidden">
+                <div class="flex justify-between items-center mb-4 border-b pb-2">
+                    <h2 class="text-lg font-bold" data-lang-key="img-text-edit-title">画像内テキスト編集</h2>
+                    <button id="close-text-editor-btn" class="text-gray-500 hover:text-gray-800 text-2xl leading-none">&times;</button>
+                </div>
+                <div class="space-y-3">
+                    <div>
+                        <label for="text-content" class="block text-sm font-medium text-gray-700" data-lang-key="text">テキスト</label>
+                        <textarea id="text-content" rows="2" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"></textarea>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label for="text-font-size" class="block text-sm font-medium text-gray-700" data-lang-key="font-size">サイズ</label>
+                            <input type="number" id="text-font-size" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                        </div>
+                        <div>
+                            <label for="text-font-family" class="block text-sm font-medium text-gray-700" data-lang-key="font-family">フォント</label>
+                            <select id="text-font-family" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                                <option value="'Noto Sans JP', sans-serif">Noto Sans JP</option>
+                                <option value="'Roboto', sans-serif">Roboto</option>
+                                <option value="serif">Serif</option>
+                                <option value="monospace">Monospace</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label for="text-color" class="block text-sm font-medium text-gray-700" data-lang-key="text-color">文字色</label>
+                        <input type="color" id="text-color" class="w-full h-8 p-1 border border-gray-300 rounded-lg">
+                    </div>
+                    <div class="flex items-center">
+                        <input type="checkbox" id="text-bold" class="h-4 w-4 text-blue-600 border-gray-300 rounded">
+                        <label for="text-bold" class="ml-2 block text-sm text-gray-900" data-lang-key="bold">太字</label>
+                    </div>
+                     <div class="border-t pt-3">
+                        <h3 class="text-md font-semibold mb-2" data-lang-key="shadow">影</h3>
+                        <div class="flex items-center">
+                            <input type="checkbox" id="text-shadow-toggle" class="h-4 w-4 text-blue-600 border-gray-300 rounded">
+                            <label for="text-shadow-toggle" class="ml-2 block text-sm text-gray-900" data-lang-key="enable-shadow">影をつける</label>
+                        </div>
+                         <div id="text-shadow-settings" class="mt-2 space-y-2 hidden">
+                             <input type="color" id="text-shadow-color" class="w-full h-8 p-1 border border-gray-300 rounded-lg">
+                        </div>
+                    </div>
+                    <div class="border-t pt-3">
+                        <h3 class="text-md font-semibold mb-2" data-lang-key="stroke">縁取り</h3>
+                        <div class="flex items-center">
+                            <input type="checkbox" id="text-stroke-toggle" class="h-4 w-4 text-blue-600 border-gray-300 rounded">
+                            <label for="text-stroke-toggle" class="ml-2 block text-sm text-gray-900" data-lang-key="enable-stroke">縁取りをつける</label>
+                        </div>
+                        <div id="text-stroke-settings" class="mt-2 space-y-2 hidden">
+                            <input type="color" id="text-stroke-color" class="w-full h-8 p-1 border border-gray-300 rounded-lg">
+                            <input type="range" id="text-stroke-width" min="1" max="10" value="1" class="w-full h-2 bg-gray-200 rounded-lg">
+                        </div>
+                    </div>
+                    <div class="border-t pt-3" id="text-position-reset-container">
+                        <button id="reset-text-position-btn" class="w-full px-4 py-2 rounded-lg shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 text-white bg-gray-500 hover:bg-gray-600 focus:ring-gray-400" data-lang-key="reset-text-pos">テキスト位置を中央に戻す</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Help Panel -->
+            <div id="help-panel" class="hidden">
+                 <div class="flex justify-between items-center mb-4 border-b pb-2">
+                    <h2 class="text-lg font-bold" data-lang-key="help-title">操作方法</h2>
+                    <button id="close-help-btn" class="text-gray-500 hover:text-gray-800 text-2xl leading-none">&times;</button>
+                </div>
+                <div class="space-y-4 text-sm">
+                    <div class="p-2 bg-gray-100 rounded">
+                        <h3 class="font-bold" data-lang-key="help-basic-ops">基本操作</h3>
+                        <ul class="list-disc list-inside mt-1">
+                            <li data-lang-key="help-add-img"><strong>画像追加:</strong> PCから画像をキャンバスにドラッグ＆ドロップします。</li>
+                            <li data-lang-key="help-move"><strong>移動:</strong> オブジェクトをドラッグして移動します。</li>
+                            <li data-lang-key="help-select"><strong>選択:</strong> オブジェクトをクリックして選択します。</li>
+                            <li data-lang-key="help-z-index"><strong>重ね順:</strong> 選択したオブジェクトが最前面に移動します。</li>
+                        </ul>
+                    </div>
+                    <div class="p-2 bg-gray-100 rounded">
+                        <h3 class="font-bold" data-lang-key="help-obj-edit">オブジェクト編集</h3>
+                        <ul class="list-disc list-inside mt-1">
+                            <li data-lang-key="help-resize"><strong>リサイズ:</strong> 選択したオブジェクトの右下ハンドルをドラッグします。</li>
+                            <li data-lang-key="help-delete"><strong>削除:</strong> 選択したオブジェクトの右上ボタンをクリックします。</li>
+                            <li data-lang-key="help-text-edit"><strong>テキスト編集:</strong> タイトルや画像をダブルクリックします。</li>
+                        </ul>
+                    </div>
+                    <div class="p-2 bg-gray-100 rounded">
+                        <h3 class="font-bold" data-lang-key="help-save-export">保存と出力</h3>
+                        <ul class="list-disc list-inside mt-1">
+                            <li data-lang-key="help-save-desc"><strong>保存:</strong> 現在の状態をファイル(.json)に保存します。</li>
+                            <li data-lang-key="help-load-desc"><strong>呼び出し:</strong> 保存したファイルを読み込みます。</li>
+                            <li data-lang-key="help-export-desc"><strong>画像出力:</strong> 出力枠内の内容を画像として保存します。</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Export Panel -->
+            <div id="export-panel" class="hidden">
+                 <div class="flex justify-between items-center mb-4 border-b pb-2">
+                    <h2 class="text-lg font-bold" data-lang-key="export-title">画像出力</h2>
+                    <button id="close-export-panel-btn" class="text-gray-500 hover:text-gray-800 text-2xl leading-none">&times;</button>
+                </div>
+                <div class="space-y-4">
+                    <div>
+                        <label for="export-width" class="block text-sm font-medium text-gray-700" data-lang-key="export-width">出力幅 (px)</label>
+                        <input type="number" id="export-width" value="1440" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                    </div>
+                    <div>
+                        <label for="export-format" class="block text-sm font-medium text-gray-700" data-lang-key="export-format">フォーマット</label>
+                        <select id="export-format" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                            <option value="image/png">PNG</option>
+                            <option value="image/jpeg">JPEG</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mt-6 flex flex-col space-y-2">
+                    <button id="confirm-export-btn" class="w-full px-4 py-2 rounded-lg shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 text-white bg-purple-500 hover:bg-purple-600 focus:ring-purple-400" data-lang-key="export-confirm">出力</button>
+                </div>
+            </div>
+
+        </aside>
+
+        <!-- Canvas Area -->
+        <main id="canvas-container" class="flex-grow bg-gray-200 flex items-center justify-center p-4 canvas-container overflow-auto">
+            <canvas id="main-canvas" width="1440" height="810"></canvas>
+        </main>
+    </div>
+
+<script>
+// =================================================================================
+// Main Application Class
+// =================================================================================
+class SimpleTableApp {
+    constructor() {
+        this.canvasEl = document.getElementById('main-canvas');
+        this.ctx = this.canvasEl.getContext('2d');
+        
+        this.settings = new SettingsManager(this);
+        this.ui = new UIManager(this);
+        this.canvasManager = new CanvasManager(this, this.canvasEl, this.ctx);
+        this.projectManager = new ProjectManager(this);
+        this.exportManager = new ExportManager(this);
+
+        this.state = {
+            editingMode: 'none', // 'none', 'title', 'imageText'
+            lastImageTextStyle: this.settings.getDefaultTextSettings(),
+        };
+
+        this.init();
+    }
+
+    init() {
+        this.settings.init();
+        this.ui.init();
+        this.canvasManager.init();
+        this.projectManager.init();
+        this.exportManager.init();
+        this.drawLoop();
+    }
+    
+    drawLoop() {
+        this.canvasManager.draw();
+        requestAnimationFrame(() => this.drawLoop());
+    }
+
+    update() {
+        this.canvasManager.draw();
+    }
+    
+    enterEditMode(mode, targetObject) {
+        this.state.editingMode = mode;
+        this.canvasManager.deselectAll();
+        if (targetObject) {
+            targetObject.isSelected = true;
+        }
+
+        if (mode === 'title') {
+            this.ui.showTitleEditor(targetObject);
+        } else if (mode === 'imageText') {
+            this.ui.showImageTextEditor(targetObject);
+        }
+        this.update();
+    }
+
+    leaveEditMode() {
+        this.state.editingMode = 'none';
+        this.ui.hideAllEditors();
+        this.canvasManager.deselectAll();
+        this.update();
+    }
+}
+
+// =================================================================================
+// Canvas Manager Class
+// =================================================================================
+class CanvasManager {
+    constructor(app, canvasEl, ctx) {
+        this.app = app;
+        this.canvas = canvasEl;
+        this.ctx = ctx;
+        this.objects = [];
+        this.title = null;
+        this.exportFrame = null;
+        this.selectedObject = null;
+        this.draggingObject = null;
+        this.resizingObject = null;
+        this.draggingTextObject = null;
+        this.backgroundImage = null; // ★追加
+    }
+
+    init() {
+        this.title = new Title({
+            app: this.app,
+            text: 'タイトル',
+            x: 20,
+            y: 50,
+            fontSize: 40,
+            fontFamily: "'Noto Sans JP', sans-serif",
+            fontWeight: 'bold',
+            fillStyle: '#333333'
+        });
+        this.exportFrame = new ExportFrame({
+            app: this.app,
+            x: 0, y: 0, width: 1440, height: 810
+        });
+        this.objects.push(this.exportFrame, this.title);
+        
+        this.addEventListeners();
+    }
+    
+    draw() {
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        
+        // ★修正: 描画順序を変更
+        // 1. 背景画像
+        if (this.backgroundImage && this.backgroundImage.image) {
+            const bg = this.backgroundImage;
+            const settings = this.app.settings.config.background;
+            this.ctx.save();
+            this.ctx.globalAlpha = settings.opacity;
+            const w = bg.image.width * settings.scale;
+            const h = bg.image.height * settings.scale;
+            this.ctx.drawImage(bg.image, settings.x, settings.y, w, h);
+            this.ctx.restore();
+        }
+
+        // 2. グリッド
+        if (this.app.settings.config.gridVisible) {
+            this.drawGrid();
+        }
+
+        // 3. オブジェクト
+        [...this.objects].sort((a, b) => a.zIndex - b.zIndex).forEach(obj => {
+            if (obj.type === 'Title' && !this.app.settings.config.titleVisible) {
+                return;
+            }
+            obj.draw(this.ctx);
+        });
+        
+        if (this.selectedObject && this.app.state.editingMode === 'none') {
+            this.selectedObject.drawHandles(this.ctx);
+            this.selectedObject.drawInfo(this.ctx);
+        }
+    }
+
+    drawGrid() {
+        const gridSize = this.app.settings.config.gridSize;
+        this.ctx.beginPath();
+        this.ctx.strokeStyle = '#e0e0e0';
+        this.ctx.lineWidth = 1;
+        for (let x = 0; x < this.canvas.width; x += gridSize) {
+            this.ctx.moveTo(x, 0);
+            this.ctx.lineTo(x, this.canvas.height);
+        }
+        for (let y = 0; y < this.canvas.height; y += gridSize) {
+            this.ctx.moveTo(0, y);
+            this.ctx.lineTo(this.canvas.width, y);
+        }
+        this.ctx.stroke();
+    }
+    
+    addImage(file, dropX, dropY) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img = new Image();
+            img.onload = () => {
+                const newImage = new ImageObject({
+                    app: this.app,
+                    image: img,
+                    x: dropX,
+                    y: dropY
+                });
+                this.objects.push(newImage);
+                this.selectObject(newImage);
+                this.app.update();
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+
+    // ★追加: 背景画像を設定するメソッド
+    setBackgroundImage(file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img = new Image();
+            img.onload = () => {
+                this.backgroundImage = { image: img, src: e.target.result };
+                this.app.update();
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+
+
+    addEventListeners() {
+        this.canvas.addEventListener('dragover', (e) => e.preventDefault());
+        this.canvas.addEventListener('drop', (e) => {
+            e.preventDefault();
+            if (this.app.state.editingMode !== 'none') return;
+            if (e.dataTransfer.files.length > 0) {
+                const file = e.dataTransfer.files[0];
+                if (file.type.startsWith('image/')) {
+                    const pos = this.getMousePos(e);
+                    this.addImage(file, pos.x, pos.y);
+                }
+            }
+        });
+
+        this.canvas.addEventListener('mousedown', (e) => this.handleMouseDown(e));
+        this.canvas.addEventListener('mousemove', (e) => this.handleMouseMove(e));
+        this.canvas.addEventListener('mouseup', (e) => this.handleMouseUp(e));
+        this.canvas.addEventListener('dblclick', (e) => this.handleDoubleClick(e));
+    }
+    
+    getMousePos(e) {
+        const rect = this.canvas.getBoundingClientRect();
+        const container = document.getElementById('canvas-container');
+        return { 
+            x: e.clientX - rect.left + container.scrollLeft, 
+            y: e.clientY - rect.top + container.scrollTop 
+        };
+    }
+
+    handleMouseDown(e) {
+        const pos = this.getMousePos(e);
+
+        if (this.app.state.editingMode === 'imageText') {
+            const currentTextObject = this.app.ui.editorBindings.text.currentObject;
+            const parentImage = this.objects.find(obj => obj.type === 'ImageObject' && obj.text === currentTextObject);
+            
+            let isHitOnText = false;
+            if (parentImage) {
+                const relativeX = pos.x - parentImage.x;
+                const relativeY = pos.y - parentImage.y;
+                if (currentTextObject.isHit(relativeX, relativeY)) {
+                    isHitOnText = true;
+                }
+            }
+
+            if (isHitOnText) {
+                this.draggingTextObject = currentTextObject;
+                return;
+            } else {
+                this.app.leaveEditMode();
+            }
+        }
+
+        if (this.app.state.editingMode !== 'none') return;
+
+        if (this.selectedObject) {
+            const handle = this.selectedObject.getHandleAt(pos.x, pos.y);
+            if (handle) {
+                if (handle.type === 'resize') {
+                    this.resizingObject = { object: this.selectedObject, handle: handle };
+                    return;
+                }
+                if (handle.type === 'delete') {
+                    this.deleteObject(this.selectedObject);
+                    return;
+                }
+            }
+        }
+        
+        let objectFound = false;
+        for (let i = this.objects.length - 1; i >= 0; i--) {
+            const obj = this.objects[i];
+            if (obj.isHit(pos.x, pos.y)) {
+                this.selectObject(obj);
+                if (obj.isDraggable) {
+                    this.draggingObject = obj;
+                }
+                objectFound = true;
+                break;
+            }
+        }
+        
+        if (!objectFound) {
+            this.deselectAll();
+        }
+        this.app.update();
+    }
+
+    handleMouseMove(e) {
+        const pos = this.getMousePos(e);
+
+        if (this.draggingTextObject) {
+            this.draggingTextObject.move(e.movementX, e.movementY);
+            this.app.update();
+            return;
+        }
+        
+        if (this.app.state.editingMode === 'imageText') {
+            const currentTextObject = this.app.ui.editorBindings.text.currentObject;
+            const parentImage = this.objects.find(obj => obj.type === 'ImageObject' && obj.text === currentTextObject);
+            if (parentImage) {
+                const relativeX = pos.x - parentImage.x;
+                const relativeY = pos.y - parentImage.y;
+                this.canvas.style.cursor = currentTextObject.isHit(relativeX, relativeY) ? 'move' : 'default';
+            }
+            return;
+        }
+
+        if (this.resizingObject) {
+            this.resizingObject.object.resize(pos.x, pos.y, this.resizingObject.handle);
+            this.app.update();
+            return;
+        }
+        
+        if (this.draggingObject) {
+            this.draggingObject.move(e.movementX, e.movementY);
+            this.app.update();
+            return;
+        }
+        
+        let cursor = 'default';
+        if (this.selectedObject) {
+            const handle = this.selectedObject.getHandleAt(pos.x, pos.y);
+            if (handle) {
+                cursor = handle.cursor;
+            } else if (this.selectedObject.isHit(pos.x, pos.y) && this.selectedObject.isDraggable) {
+                cursor = 'move';
+            }
+        }
+        this.canvas.style.cursor = cursor;
+    }
+
+    handleMouseUp(e) {
+        if (this.draggingTextObject) {
+            this.draggingTextObject = null;
+            this.app.update();
+        }
+        if (this.draggingObject) {
+            this.draggingObject.snapToGrid();
+            this.draggingObject = null;
+        }
+        this.resizingObject = null;
+        this.app.update();
+    }
+
+    handleDoubleClick(e) {
+        if (this.app.state.editingMode !== 'none') return;
+        const pos = this.getMousePos(e);
+        for (let i = this.objects.length - 1; i >= 0; i--) {
+            const obj = this.objects[i];
+            if (obj.isHit(pos.x, pos.y) && obj.isEditable) {
+                obj.onDoubleClick();
+                break;
+            }
+        }
+    }
+    
+    selectObject(obj) {
+        this.deselectAll();
+        this.selectedObject = obj;
+        obj.isSelected = true;
+        
+        if (obj.type !== 'ExportFrame') {
+            const maxZ = Math.max(1, ...this.objects.filter(o => o.type !== 'ExportFrame').map(o => o.zIndex));
+            obj.zIndex = maxZ + 1;
+        }
+        this.app.update();
+    }
+
+    deselectAll() {
+        this.objects.forEach(obj => obj.isSelected = false);
+        this.selectedObject = null;
+        this.app.update();
+    }
+    
+    deleteObject(obj) {
+        this.objects = this.objects.filter(o => o !== obj);
+        this.deselectAll();
+    }
+    
+    loadObjects(projectData) {
+        this.objects = [];
+        projectData.objects.forEach(objData => {
+            let newObj;
+            switch(objData.type) {
+                case 'Title':
+                    newObj = Title.fromJSON(objData, this.app);
+                    this.title = newObj;
+                    break;
+                case 'ImageObject':
+                    newObj = ImageObject.fromJSON(objData, this.app);
+                    break;
+                case 'ExportFrame':
+                    newObj = ExportFrame.fromJSON(objData, this.app);
+                    this.exportFrame = newObj;
+                    break;
+            }
+            if (newObj) this.objects.push(newObj);
+        });
+
+        // ★追加: 保存データから背景画像を読み込む
+        if (projectData.backgroundImageSrc) {
+            const img = new Image();
+            img.onload = () => {
+                this.backgroundImage = { image: img, src: projectData.backgroundImageSrc };
+                this.app.update();
+            };
+            img.src = projectData.backgroundImageSrc;
+        } else {
+            this.backgroundImage = null;
+        }
+
+        this.app.update();
+    }
+}
+
+// =================================================================================
+// Draggable Object Base Class
+// =================================================================================
+class DraggableObject {
+    constructor(config) {
+        this.app = config.app;
+        this.x = config.x || 0;
+        this.y = config.y || 0;
+        this.width = config.width || 100;
+        this.height = config.height || 100;
+        this.isSelected = false;
+        this.isEditable = config.isEditable !== undefined ? config.isEditable : true;
+        this.isDraggable = config.isDraggable !== undefined ? config.isDraggable : true;
+        this.zIndex = config.zIndex || 1;
+        this.type = 'DraggableObject';
+    }
+
+    draw(ctx) {}
+    isHit(x, y) {}
+    drawHandles(ctx) {}
+    getHandleAt(x, y) { return null; }
+    drawInfo(ctx) {}
+    onDoubleClick() {}
+
+    move(dx, dy) {
+        this.x += dx;
+        this.y += dy;
+    }
+    
+    resize(newX, newY, handle) { /* To be implemented by subclasses */ }
+    
+    snapToGrid() {
+        if (!this.isDraggable) return;
+        const gridSize = this.app.settings.config.gridSize;
+        this.x = Math.round(this.x / gridSize) * gridSize;
+        this.y = Math.round(this.y / gridSize) * gridSize;
+    }
+    
+    toJSON() {
+        return {
+            type: this.type,
+            x: this.x, y: this.y,
+            width: this.width, height: this.height,
+            zIndex: this.zIndex,
+        };
+    }
+}
+
+// =================================================================================
+// Image Object Class
+// =================================================================================
+class ImageObject extends DraggableObject {
+    constructor(config) {
+        super(config);
+        this.type = 'ImageObject';
+        this.image = config.image;
+        this.aspectRatio = this.image ? this.image.height / this.image.width : 1;
+        this.border = config.border ? { ...config.border } : { ...this.app.settings.config.imageBorder };
+        
+        this.text = new TextObject({
+            app: this.app,
+            ...this.app.state.lastImageTextStyle,
+            ...(config.text || { text: '' }) // Ensure text obj exists, default to empty
+        });
+        this.text.x = this.width / 2;
+        this.text.y = this.height / 2;
+
+        if (this.image) this.fitToMaxSize();
+        this.snapToGrid();
+    }
+
+    fitToMaxSize() {
+        const maxSize = this.app.settings.config.maxImageSize;
+        if (this.image.width > this.image.height) {
+            this.width = maxSize;
+            this.height = maxSize * this.aspectRatio;
+        } else {
+            this.height = maxSize;
+            this.width = maxSize / this.aspectRatio;
+        }
+    }
+    
+    createRoundedRectPath(ctx, x, y, width, height, radius) {
+        ctx.beginPath();
+        ctx.moveTo(x + radius, y);
+        ctx.lineTo(x + width - radius, y);
+        ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+        ctx.lineTo(x + width, y + height - radius);
+        ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+        ctx.lineTo(x + radius, y + height);
+        ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+        ctx.lineTo(x, y + radius);
+        ctx.quadraticCurveTo(x, y, x + radius, y);
+        ctx.closePath();
+    }
+
+    draw(ctx) {
+        ctx.save();
+        
+        this.createRoundedRectPath(ctx, this.x, this.y, this.width, this.height, this.border.enabled ? this.border.radius : 0);
+        ctx.save();
+        ctx.clip();
+        ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
+        ctx.restore();
+
+        if (this.border.enabled && this.border.width > 0) {
+            ctx.strokeStyle = this.border.color;
+            ctx.lineWidth = this.border.width;
+            ctx.stroke();
+        }
+
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.beginPath();
+        ctx.rect(0, 0, this.width, this.height);
+        ctx.clip();
+        this.text.draw(ctx);
+        ctx.restore();
+
+        ctx.restore();
+    }
+    
+    resize(newX, newY, handle) {
+        const newWidth = Math.max(20, newX - this.x);
+        this.width = newWidth;
+        this.height = this.width * this.aspectRatio;
+        this.text.x = this.width / 2;
+        this.text.y = this.height / 2;
+    }
+
+    isHit(x, y) {
+        return x >= this.x && x <= this.x + this.width && y >= this.y && y <= this.y + this.height;
+    }
+
+    drawHandles(ctx) {
+        const handleSize = 10;
+        // Resize handle
+        ctx.fillStyle = 'rgba(0, 123, 255, 0.8)';
+        ctx.fillRect(this.x + this.width - handleSize / 2, this.y + this.height - handleSize / 2, handleSize, handleSize);
+        
+        // Delete handle
+        ctx.fillStyle = 'rgba(220, 38, 38, 0.9)'; // Tailwind red-600
+        ctx.beginPath();
+        ctx.arc(this.x + this.width, this.y, handleSize / 1.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.save();
+        ctx.font = 'bold 12px sans-serif';
+        ctx.fillStyle = 'white';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('×', this.x + this.width, this.y);
+        ctx.restore();
+    }
+
+    getHandleAt(x, y) {
+        const handleSize = 12;
+        if (x >= this.x + this.width - handleSize && x <= this.x + this.width + handleSize &&
+            y >= this.y + this.height - handleSize && y <= this.y + this.height + handleSize) {
+            return { type: 'resize', cursor: 'nwse-resize' };
+        }
+        if (Math.sqrt(Math.pow(x - (this.x + this.width), 2) + Math.pow(y - this.y, 2)) <= handleSize / 1.5) {
+            return { type: 'delete', cursor: 'pointer' };
+        }
+        return null;
+    }
+
+    drawInfo(ctx) {
+        const text = `W:${Math.round(this.width)} H:${Math.round(this.height)}`;
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+        ctx.fillRect(this.x, this.y + this.height - 20, ctx.measureText(text).width + 10, 20);
+        ctx.fillStyle = 'white';
+        ctx.font = '12px sans-serif';
+        ctx.fillText(text, this.x + 5, this.y + this.height - 5);
+    }
+    
+    onDoubleClick() {
+        this.app.enterEditMode('imageText', this.text);
+    }
+
+    toJSON() {
+        const data = super.toJSON();
+        data.imageSrc = this.image.src;
+        data.border = this.border;
+        data.text = this.text.toJSON();
+        return data;
+    }
+
+    static fromJSON(data, app) {
+        const img = new Image();
+        img.src = data.imageSrc;
+        const config = { ...data, app, image: img };
+        return new ImageObject(config);
+    }
+}
+
+// =================================================================================
+// Text Object Class
+// =================================================================================
+class TextObject extends DraggableObject {
+    constructor(config) {
+        super(config);
+        this.type = 'TextObject';
+        this.text = config.text || '';
+        this.fontFamily = config.fontFamily || 'sans-serif';
+        this.fontSize = config.fontSize || 16;
+        this.fontWeight = config.fontWeight || 'normal';
+        this.fillStyle = config.fillStyle || '#000000';
+        this.textAlign = config.textAlign || 'center';
+        this.shadow = config.shadow || { enabled: false, color: '#000000' };
+        this.stroke = config.stroke || { enabled: false, color: '#ffffff', width: 1 };
+        this.isEditable = true;
+    }
+
+    draw(ctx) {
+        if (!this.text) return;
+        ctx.save();
+        ctx.font = `${this.fontWeight} ${this.fontSize}px ${this.fontFamily}`;
+        ctx.textAlign = this.textAlign;
+        ctx.textBaseline = 'middle';
+        
+        if (this.shadow.enabled) {
+            ctx.shadowColor = this.shadow.color;
+            ctx.shadowBlur = 5;
+            ctx.shadowOffsetX = 2;
+            ctx.shadowOffsetY = 2;
+        }
+
+        if (this.stroke.enabled && this.stroke.width > 0) {
+            ctx.strokeStyle = this.stroke.color;
+            ctx.lineWidth = this.stroke.width;
+            ctx.strokeText(this.text, this.x, this.y);
+        }
+        
+        ctx.fillStyle = this.fillStyle;
+        ctx.fillText(this.text, this.x, this.y);
+        ctx.restore();
+    }
+
+    getMetrics() {
+        const ctx = this.app.ctx;
+        ctx.save();
+        ctx.font = `${this.fontWeight} ${this.fontSize}px ${this.fontFamily}`;
+        const metrics = ctx.measureText(this.text);
+        ctx.restore();
+        return metrics;
+    }
+    
+    isHit(x, y) {
+        if (!this.text) return false;
+        
+        const metrics = this.getMetrics();
+        const textWidth = metrics.width;
+        const textHeight = this.fontSize; 
+        
+        let xStart;
+        if (this.textAlign === 'center') {
+            xStart = this.x - textWidth / 2;
+        } else if (this.textAlign === 'right') {
+            xStart = this.x - textWidth;
+        } else { // left
+            xStart = this.x;
+        }
+
+        return x >= xStart && x <= xStart + textWidth &&
+               y >= this.y - textHeight / 2 && y <= this.y + textHeight / 2;
+    }
+    
+    toJSON() {
+        const data = super.toJSON();
+        data.text = this.text;
+        data.fontFamily = this.fontFamily;
+        data.fontSize = this.fontSize;
+        data.fontWeight = this.fontWeight;
+        data.fillStyle = this.fillStyle;
+        data.textAlign = this.textAlign;
+        data.shadow = this.shadow;
+        data.stroke = this.stroke;
+        return data;
+    }
+
+    static fromJSON(data, app) {
+        return new TextObject({ ...data, app });
+    }
+}
+
+// =================================================================================
+// Title Class
+// =================================================================================
+class Title extends TextObject {
+    constructor(config) {
+        super(config);
+        this.type = 'Title';
+        this.textAlign = config.textAlign || 'left';
+    }
+    
+    isHit(x, y) {
+        if (!this.app.settings.config.titleVisible) return false;
+        return super.isHit(x,y);
+    }
+    
+    onDoubleClick() {
+        this.app.enterEditMode('title', this);
+    }
+    
+    static fromJSON(data, app) {
+        return new Title({ ...data, app });
+    }
+}
+
+// =================================================================================
+// Export Frame Class
+// =================================================================================
+class ExportFrame extends DraggableObject {
+    constructor(config) {
+        super({ ...config, isDraggable: false, isEditable: true, zIndex: 0 });
+        this.type = 'ExportFrame';
+    }
+
+    draw(ctx) {
+        ctx.save();
+        ctx.strokeStyle = 'rgba(0, 123, 255, 0.7)';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([8, 4]);
+        ctx.strokeRect(this.x, this.y, this.width, this.height);
+        ctx.restore();
+    }
+
+    isHit(x, y) {
+        const margin = 5;
+        const onHorizontal = (y > this.y - margin && y < this.y + margin) || (y > this.y + this.height - margin && y < this.y + this.height + margin);
+        const onVertical = (x > this.x - margin && x < this.x + margin) || (x > this.x + this.width - margin && x < this.x + this.width + margin);
+        return (onHorizontal && x > this.x && x < this.x + this.width) || (onVertical && y > this.y && y < this.y + this.height);
+    }
+    
+    resize(newX, newY, handle) {
+        if (handle.pos === 'br') {
+            this.width = newX - this.x;
+            this.height = newY - this.y;
+        }
+        
+        this.width = Math.max(50, this.width);
+        this.height = Math.max(50, this.height);
+        
+        this.x = 0;
+        this.y = 0;
+    }
+
+    drawHandles(ctx) {
+        const handleSize = 10;
+        ctx.fillStyle = 'rgba(0, 123, 255, 0.8)';
+        this.getHandles().forEach(h => {
+             ctx.fillRect(h.x - handleSize/2, h.y - handleSize/2, handleSize, handleSize);
+        });
+    }
+    
+    getHandles() {
+        return [
+            { pos: 'br', x: this.x + this.width, y: this.y + this.height, cursor: 'nwse-resize' },
+        ];
+    }
+
+    getHandleAt(x, y) {
+        const handleSize = 12;
+        for (const handle of this.getHandles()) {
+            if (Math.abs(x - handle.x) < handleSize/2 && Math.abs(y - handle.y) < handleSize/2) {
+                return { type: 'resize', ...handle };
+            }
+        }
+        return null;
+    }
+    
+    drawInfo(ctx) {
+        const text = `W:${Math.round(this.width)} H:${Math.round(this.height)}`;
+        const lang = this.app.settings.config.language;
+        const label = this.app.ui.translations[lang]['export-area-label'] || `出力範囲:`;
+
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+        ctx.fillRect(this.x, this.y + this.height, ctx.measureText(`${label} ${text}`).width + 10, 20);
+        ctx.fillStyle = 'white';
+        ctx.font = '12px sans-serif';
+        ctx.fillText(`${label} ${text}`, this.x + 5, this.y + this.height + 15);
+    }
+    
+    snapToGrid() {}
+    move(dx, dy) {}
+
+    static fromJSON(data, app) {
+        return new ExportFrame({ ...data, app });
+    }
+}
+
+// =================================================================================
+// Settings Manager Class
+// =================================================================================
+class SettingsManager {
+    constructor(app) {
+        this.app = app;
+        this.storageKey = 'simpleTableCreatorSettings_v5'; // ★バージョン更新
+        this.config = this.loadSettings();
+    }
+
+    init() {
+        this.bindUI();
+        this.updateUI();
+        this.applySettings();
+    }
+
+    getDefaults() {
+        return {
+            language: 'ja',
+            titleVisible: true,
+            gridVisible: true, // ★追加
+            gridSize: 5,
+            maxImageSize: 240,
+            imageBorder: {
+                enabled: true,
+                width: 2,
+                color: '#000000',
+                radius: 8
+            },
+            background: { // ★追加
+                opacity: 1,
+                scale: 1,
+                x: 0,
+                y: 0
+            }
+        };
+    }
+    
+    getDefaultTextSettings() {
+        return {
+            fontFamily: "'Noto Sans JP', sans-serif",
+            fontSize: 16,
+            fontWeight: 'normal',
+            fillStyle: '#000000',
+            textAlign: 'center',
+            shadow: { enabled: false, color: '#000000' },
+            stroke: { enabled: false, color: '#ffffff', width: 1 },
+        }
+    }
+
+    loadSettings() {
+        const saved = localStorage.getItem(this.storageKey);
+        return saved ? { ...this.getDefaults(), ...JSON.parse(saved) } : this.getDefaults();
+    }
+
+    saveSettings() {
+        localStorage.setItem(this.storageKey, JSON.stringify(this.config));
+    }
+
+    applySettings() {
+        this.app.ui.setLanguage(this.config.language);
+        this.app.update();
+    }
+
+    bindUI() {
+        const settings = [
+            { id: 'title-visible-toggle', key: 'titleVisible', type: 'checkbox' },
+            { id: 'grid-visible-toggle', key: 'gridVisible', type: 'checkbox' }, // ★追加
+            { id: 'grid-size', key: 'gridSize', type: 'range' },
+            { id: 'max-img-size', key: 'maxImageSize', type: 'range' },
+            { id: 'img-border-toggle', key: 'imageBorder.enabled', type: 'checkbox' },
+            { id: 'img-border-width', key: 'imageBorder.width', type: 'range' },
+            { id: 'img-border-color', key: 'imageBorder.color', type: 'color' },
+            { id: 'img-border-radius', key: 'imageBorder.radius', type: 'range' },
+            { id: 'bg-opacity', key: 'background.opacity', type: 'range', isFloat: true }, // ★追加
+            { id: 'bg-scale', key: 'background.scale', type: 'range', isFloat: true }, // ★追加
+            { id: 'bg-pos-x', key: 'background.x', type: 'range' }, // ★追加
+            { id: 'bg-pos-y', key: 'background.y', type: 'range' }, // ★追加
+        ];
+
+        settings.forEach(setting => {
+            const el = document.getElementById(setting.id);
+            el.addEventListener('input', (e) => {
+                let value;
+                switch(setting.type) {
+                    case 'checkbox': value = e.target.checked; break;
+                    default: value = setting.isFloat ? parseFloat(e.target.value) : parseInt(e.target.value);
+                }
+                
+                // ★修正: 5px刻みの処理
+                if (setting.key === 'gridSize' || setting.key === 'maxImageSize') {
+                    value = Math.round(value / 5) * 5;
+                    e.target.value = value;
+                }
+
+                this.setConfigValue(setting.key, value);
+                this.updateUI();
+                this.saveSettings();
+                this.applySettings();
+            });
+        });
+
+        document.getElementById('reset-settings-btn').addEventListener('click', () => {
+            const msg = this.app.ui.translations[this.config.language]['confirm-reset'];
+            if (confirm(msg)) {
+                this.config = this.getDefaults();
+                this.updateUI();
+                this.saveSettings();
+                this.applySettings();
+            }
+        });
+    }
+
+    updateUI() {
+        const ids = {
+            'title-visible-toggle': 'titleVisible',
+            'grid-visible-toggle': 'gridVisible',
+            'grid-size': 'gridSize',
+            'max-img-size': 'maxImageSize',
+            'img-border-toggle': 'imageBorder.enabled',
+            'img-border-width': 'imageBorder.width',
+            'img-border-color': 'imageBorder.color',
+            'img-border-radius': 'imageBorder.radius',
+            'bg-opacity': 'background.opacity',
+            'bg-scale': 'background.scale',
+            'bg-pos-x': 'background.x',
+            'bg-pos-y': 'background.y',
+        };
+        for (const id in ids) {
+            const el = document.getElementById(id);
+            const value = this.getConfigValue(ids[id]);
+            if (el.type === 'checkbox') el.checked = value;
+            else el.value = value;
+            
+            const valueEl = document.getElementById(`${id}-value`);
+            if (valueEl) valueEl.textContent = value;
+        }
+        
+        document.getElementById('img-border-settings').style.display = this.config.imageBorder.enabled ? 'block' : 'none';
+        document.getElementById('grid-settings').style.display = this.config.gridVisible ? 'block' : 'none';
+    }
+
+    setConfigValue(key, value) {
+        const keys = key.split('.');
+        let obj = this.config;
+        for (let i = 0; i < keys.length - 1; i++) {
+            obj = obj[keys[i]];
+        }
+        obj[keys[keys.length - 1]] = value;
+    }
+
+    getConfigValue(key) {
+        return key.split('.').reduce((o, i) => o[i], this.config);
+    }
+}
+
+// =================================================================================
+// UI Manager Class
+// =================================================================================
+class UIManager {
+    constructor(app) {
+        this.app = app;
+        this.panels = {
+            main: document.getElementById('main-settings-panel'),
+            titleEditor: document.getElementById('title-editor-panel'),
+            imageTextEditor: document.getElementById('text-editor-panel'),
+            help: document.getElementById('help-panel'),
+            export: document.getElementById('export-panel'),
+        };
+        this.headerButtons = {
+            export: document.getElementById('export-image-btn'),
+            help: document.getElementById('help-btn'),
+            lang: document.getElementById('language-toggle-btn')
+        };
+        this.editorBindings = {};
+        this.translations = {
+            ja: {
+                'app-title': '画像放り込みシンプル表作成', 'save': '保存', 'load': '呼び出し', 'export': '画像出力', 'help': '操作方法',
+                'settings-title': '設定', 'language': '言語', 'show-title': 'タイトルを表示', 'grid-width': 'グリッド幅', 'max-img-size': '画像最大サイズ',
+                'img-frame-settings': '画像フレーム設定', 'enable-border': '枠線をつける', 'border-width': '枠線の幅', 'border-color': '枠線の色', 'corner-radius': '角の丸み',
+                'reset-settings': '設定をデフォルトに戻す', 'title-edit-title': 'タイトル編集', 'img-text-edit-title': '画像内テキスト編集',
+                'text': 'テキスト', 'font-size': 'サイズ', 'font-family': 'フォント', 'text-color': '文字色', 'bold': '太字', 'shadow': '影',
+                'enable-shadow': '影をつける', 'stroke': '縁取り', 'enable-stroke': '縁取りをつける', 'reset-text-pos': 'テキスト位置を中央に戻す',
+                'help-title': '操作方法', 'help-basic-ops': '基本操作', 'help-add-img': '<strong>画像追加:</strong> PCから画像をキャンバスにドラッグ＆ドロップします。',
+                'help-move': '<strong>移動:</strong> オブジェクトをドラッグして移動します。', 'help-select': '<strong>選択:</strong> オブジェクトをクリックして選択します。',
+                'help-z-index': '<strong>重ね順:</strong> 選択したオブジェクトが最前面に移動します。', 'help-obj-edit': 'オブジェクト編集',
+                'help-resize': '<strong>リサイズ:</strong> 選択したオブジェクトの右下ハンドルをドラッグします。', 'help-delete': '<strong>削除:</strong> 選択したオブジェクトの右上ボタンをクリックします。',
+                'help-text-edit': '<strong>テキスト編集:</strong> タイトルや画像をダブルクリックします。', 'help-save-export': '保存と出力',
+                'help-save-desc': '<strong>保存:</strong> 現在の状態をファイル(.json)に保存します。', 'help-load-desc': '<strong>呼び出し:</strong> 保存したファイルを読み込みます。',
+                'help-export-desc': '<strong>画像出力:</strong> 出力枠内の内容を画像として保存します。', 'export-title': '画像出力', 'export-width': '出力幅 (px)',
+                'export-format': 'フォーマット', 'cancel': 'キャンセル', 'export-confirm': '出力', 'export-area-label': '出力範囲:', 'confirm-reset': '全ての設定を初期状態に戻しますか？',
+                'show-grid': 'グリッドを表示', 'bg-settings': '背景設定', 'bg-drop-text': 'ここに背景画像をドロップ', 'bg-opacity': '透過度', 'bg-scale': '拡大率', 'bg-pos-x': 'X位置', 'bg-pos-y': 'Y位置'
+            },
+            en: {
+                'app-title': 'Simple Image Table Creator', 'save': 'Save', 'load': 'Load', 'export': 'Export Image', 'help': 'Help',
+                'settings-title': 'Settings', 'language': 'Language', 'show-title': 'Show Title', 'grid-width': 'Grid Width', 'max-img-size': 'Max Image Size',
+                'img-frame-settings': 'Image Frame Settings', 'enable-border': 'Enable Border', 'border-width': 'Border Width', 'border-color': 'Border Color', 'corner-radius': 'Corner Radius',
+                'reset-settings': 'Reset to Default', 'title-edit-title': 'Edit Title', 'img-text-edit-title': 'Edit Image Text',
+                'text': 'Text', 'font-size': 'Size', 'font-family': 'Font', 'text-color': 'Color', 'bold': 'Bold', 'shadow': 'Shadow',
+                'enable-shadow': 'Enable Shadow', 'stroke': 'Stroke', 'enable-stroke': 'Enable Stroke', 'reset-text-pos': 'Reset Text Position',
+                'help-title': 'How to Use', 'help-basic-ops': 'Basic Operations', 'help-add-img': '<strong>Add Image:</strong> Drag & drop an image from your PC onto the canvas.',
+                'help-move': '<strong>Move:</strong> Drag an object to move it.', 'help-select': '<strong>Select:</strong> Click an object to select it.',
+                'help-z-index': '<strong>Layer Order:</strong> Selected objects move to the front.', 'help-obj-edit': 'Object Editing',
+                'help-resize': '<strong>Resize:</strong> Drag the bottom-right handle of a selected object.', 'help-delete': '<strong>Delete:</strong> Click the top-right button of a selected object.',
+                'help-text-edit': '<strong>Edit Text:</strong> Double-click the title or an image.', 'help-save-export': 'Save & Export',
+                'help-save-desc': '<strong>Save:</strong> Save the current project to a .json file.', 'help-load-desc': '<strong>Load:</strong> Load a saved project file.',
+                'help-export-desc': '<strong>Export Image:</strong> Export the content within the export frame as an image.', 'export-title': 'Export Image', 'export-width': 'Export Width (px)',
+                'export-format': 'Format', 'cancel': 'Cancel', 'export-confirm': 'Export', 'export-area-label': 'Export Area:', 'confirm-reset': 'Reset all settings to default?',
+                'show-grid': 'Show Grid', 'bg-settings': 'Background Settings', 'bg-drop-text': 'Drop background image here', 'bg-opacity': 'Opacity', 'bg-scale': 'Scale', 'bg-pos-x': 'X Position', 'bg-pos-y': 'Y Position'
+            }
+        };
+    }
+
+    init() {
+        this.headerButtons.export.addEventListener('click', () => this.showPanel('export'));
+        this.headerButtons.help.addEventListener('click', () => this.showPanel('help'));
+        this.headerButtons.lang.addEventListener('click', () => {
+            const newLang = this.app.settings.config.language === 'ja' ? 'en' : 'ja';
+            this.app.settings.config.language = newLang;
+            this.app.settings.saveSettings();
+            this.app.settings.applySettings();
+        });
+
+        document.getElementById('close-help-btn').addEventListener('click', () => this.showPanel('main'));
+        document.getElementById('close-title-editor-btn').addEventListener('click', () => this.app.leaveEditMode());
+        document.getElementById('close-text-editor-btn').addEventListener('click', () => this.app.leaveEditMode());
+        document.getElementById('close-export-panel-btn').addEventListener('click', () => this.showPanel('main'));
+        
+        this.bindEditor('title', (obj, prop, val) => { obj[prop] = val; });
+        this.bindEditor('text', (target, prop, val) => {
+            target[prop] = val;
+            const currentTextObject = this.editorBindings.text.currentObject;
+            if (currentTextObject) {
+                this.app.state.lastImageTextStyle = currentTextObject.toJSON();
+            }
+        });
+
+        // ★追加: 背景ドロップエリアのイベントリスナー
+        const dropArea = document.getElementById('background-drop-area');
+        dropArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropArea.classList.add('dragover');
+        });
+        dropArea.addEventListener('dragleave', () => {
+            dropArea.classList.remove('dragover');
+        });
+        dropArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropArea.classList.remove('dragover');
+            if (e.dataTransfer.files.length > 0) {
+                const file = e.dataTransfer.files[0];
+                if (file.type.startsWith('image/')) {
+                    this.app.canvasManager.setBackgroundImage(file);
+                }
+            }
+        });
+    }
+
+    setLanguage(lang) {
+        document.querySelectorAll('[data-lang-key]').forEach(el => {
+            const key = el.dataset.langKey;
+            if (this.translations[lang] && this.translations[lang][key]) {
+                el.innerHTML = this.translations[lang][key];
+            }
+        });
+        this.headerButtons.lang.textContent = lang === 'ja' ? 'English' : '日本語';
+    }
+    
+    showPanel(panelName) {
+        Object.values(this.panels).forEach(p => p.classList.add('hidden'));
+        this.panels[panelName].classList.remove('hidden');
+        this.updateHeaderButtons(panelName);
+    }
+
+    updateHeaderButtons(activePanelName) {
+        const exportBtn = this.headerButtons.export;
+        const helpBtn = this.headerButtons.help;
+
+        // Reset all buttons to gray
+        exportBtn.classList.remove('bg-purple-500', 'hover:bg-purple-600', 'focus:ring-purple-400');
+        exportBtn.classList.add('bg-gray-500', 'hover:bg-gray-600', 'focus:ring-gray-400');
+        helpBtn.classList.remove('bg-green-500', 'hover:bg-green-600', 'focus:ring-green-400');
+        helpBtn.classList.add('bg-gray-500', 'hover:bg-gray-600', 'focus:ring-gray-400');
+
+        // Set active button color
+        if (activePanelName === 'export') {
+            exportBtn.classList.remove('bg-gray-500', 'hover:bg-gray-600', 'focus:ring-gray-400');
+            exportBtn.classList.add('bg-purple-500', 'hover:bg-purple-600', 'focus:ring-purple-400');
+        } else if (activePanelName === 'help') {
+            helpBtn.classList.remove('bg-gray-500', 'hover:bg-gray-600', 'focus:ring-gray-400');
+            helpBtn.classList.add('bg-green-500', 'hover:bg-green-600', 'focus:ring-green-400');
+        }
+    }
+
+    hideAllEditors() {
+        this.showPanel('main');
+    }
+
+    showTitleEditor(textObject) {
+        this.showPanel('titleEditor');
+        this.editorBindings.title.currentObject = textObject;
+        this.populateEditor('title', textObject);
+    }
+    
+    showImageTextEditor(textObject) {
+        this.showPanel('imageTextEditor');
+        this.editorBindings.text.currentObject = textObject;
+        this.populateEditor('text', textObject);
+    }
+
+    populateEditor(prefix, textObject) {
+        document.getElementById(`${prefix}-content`).value = textObject.text;
+        document.getElementById(`${prefix}-font-size`).value = textObject.fontSize;
+        document.getElementById(`${prefix}-font-family`).value = textObject.fontFamily;
+        document.getElementById(`${prefix}-color`).value = textObject.fillStyle;
+        document.getElementById(`${prefix}-bold`).checked = textObject.fontWeight === 'bold';
+        
+        document.getElementById(`${prefix}-shadow-toggle`).checked = textObject.shadow.enabled;
+        document.getElementById(`${prefix}-shadow-color`).value = textObject.shadow.color;
+        document.getElementById(`${prefix}-shadow-settings`).style.display = textObject.shadow.enabled ? 'block' : 'none';
+
+        document.getElementById(`${prefix}-stroke-toggle`).checked = textObject.stroke.enabled;
+        document.getElementById(`${prefix}-stroke-color`).value = textObject.stroke.color;
+        document.getElementById(`${prefix}-stroke-width`).value = textObject.stroke.width;
+        document.getElementById(`${prefix}-stroke-settings`).style.display = textObject.stroke.enabled ? 'block' : 'none';
+    }
+
+    bindEditor(prefix, onUpdate) {
+        const bindings = {
+            'content': (obj, val) => onUpdate(obj, 'text', val),
+            'font-size': (obj, val) => onUpdate(obj, 'fontSize', parseInt(val) || 16),
+            'font-family': (obj, val) => onUpdate(obj, 'fontFamily', val),
+            'color': (obj, val) => onUpdate(obj, 'fillStyle', val),
+            'bold': (obj, val) => onUpdate(obj, 'fontWeight', val ? 'bold' : 'normal'),
+            'shadow-toggle': (obj, val) => onUpdate(obj.shadow, 'enabled', val),
+            'shadow-color': (obj, val) => onUpdate(obj.shadow, 'color', val),
+            'stroke-toggle': (obj, val) => onUpdate(obj.stroke, 'enabled', val),
+            'stroke-color': (obj, val) => onUpdate(obj.stroke, 'color', val),
+            'stroke-width': (obj, val) => onUpdate(obj.stroke, 'width', parseInt(val)),
+        };
+
+        this.editorBindings[prefix] = { currentObject: null };
+
+        for (const idSuffix in bindings) {
+            const el = document.getElementById(`${prefix}-${idSuffix}`);
+            const eventType = (el.type === 'checkbox' || el.tagName === 'SELECT' || el.type === 'color') ? 'change' : 'input';
+            
+            el.addEventListener(eventType, (e) => {
+                const obj = this.editorBindings[prefix].currentObject;
+                if (!obj) return;
+                const value = (el.type === 'checkbox') ? e.target.checked : e.target.value;
+                bindings[idSuffix](obj, value);
+                this.app.update();
+            });
+        }
+        
+        document.getElementById(`${prefix}-shadow-toggle`).addEventListener('change', (e) => {
+            document.getElementById(`${prefix}-shadow-settings`).style.display = e.target.checked ? 'block' : 'none';
+        });
+        document.getElementById(`${prefix}-stroke-toggle`).addEventListener('change', (e) => {
+            document.getElementById(`${prefix}-stroke-settings`).style.display = e.target.checked ? 'block' : 'none';
+        });
+        
+        if (prefix === 'text') {
+            document.getElementById('reset-text-position-btn').addEventListener('click', () => {
+                const obj = this.editorBindings.text.currentObject;
+                if (obj && obj.type === 'TextObject') {
+                    const parent = this.app.canvasManager.objects.find(p => p.text === obj);
+                    if(parent) {
+                        obj.x = parent.width / 2;
+                        obj.y = parent.height / 2;
+                        this.app.update();
+                    }
+                }
+            });
+        }
+    }
+}
+
+// =================================================================================
+// Project Manager Class
+// =================================================================================
+class ProjectManager {
+    constructor(app) {
+        this.app = app;
+    }
+
+    init() {
+        document.getElementById('save-project-btn').addEventListener('click', () => this.save());
+        document.getElementById('load-project-input').addEventListener('change', (e) => this.load(e));
+    }
+
+    save() {
+        const projectData = {
+            version: 5, // ★バージョン更新
+            settings: this.app.settings.config,
+            objects: this.app.canvasManager.objects.map(obj => obj.toJSON()),
+            lastImageTextStyle: this.app.state.lastImageTextStyle,
+            backgroundImageSrc: this.app.canvasManager.backgroundImage ? this.app.canvasManager.backgroundImage.src : null // ★追加
+        };
+        
+        const dataStr = JSON.stringify(projectData, null, 2);
+        const blob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = `project-v5.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+    }
+
+    load(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const projectData = JSON.parse(e.target.result);
+                if (!projectData.version || projectData.version < 5) {
+                    alert("古いバージョンのプロジェクトファイルです。互換性がありません。");
+                    return;
+                }
+                
+                this.app.settings.config = projectData.settings;
+                // ★修正: 呼び出し時にタイトルが消える問題を解決
+                this.app.settings.config.titleVisible = true;
+
+                this.app.settings.updateUI();
+                this.app.settings.saveSettings();
+                
+                if(projectData.lastImageTextStyle) {
+                    this.app.state.lastImageTextStyle = projectData.lastImageTextStyle;
+                }
+                
+                this.app.canvasManager.loadObjects(projectData);
+                
+                this.app.settings.applySettings();
+            } catch (error) {
+                console.error("プロジェクトファイルの読み込みに失敗しました:", error);
+                alert("無効なプロジェクトファイルです。");
+            }
+        };
+        reader.readAsText(file);
+        event.target.value = '';
+    }
+}
+
+// =================================================================================
+// Export Manager Class
+// =================================================================================
+class ExportManager {
+    constructor(app) {
+        this.app = app;
+    }
+
+    init() {
+        document.getElementById('confirm-export-btn').addEventListener('click', () => this.exportImage());
+    }
+    
+    exportImage() {
+        const frame = this.app.canvasManager.exportFrame;
+        const exportWidth = parseInt(document.getElementById('export-width').value);
+        const format = document.getElementById('export-format').value;
+        
+        const scale = exportWidth / frame.width;
+        const exportHeight = frame.height * scale;
+
+        const exportCanvas = document.createElement('canvas');
+        exportCanvas.width = exportWidth;
+        exportCanvas.height = exportHeight;
+        const exportCtx = exportCanvas.getContext('2d');
+        
+        exportCtx.fillStyle = '#ffffff';
+        exportCtx.fillRect(0, 0, exportWidth, exportHeight);
+
+        exportCtx.save();
+        exportCtx.scale(scale, scale);
+        exportCtx.translate(-frame.x, -frame.y);
+
+        exportCtx.beginPath();
+        exportCtx.rect(frame.x, frame.y, frame.width, frame.height);
+        exportCtx.clip();
+
+        // ★修正: 出力時にも背景画像を描画
+        const canvasManager = this.app.canvasManager;
+        if (canvasManager.backgroundImage && canvasManager.backgroundImage.image) {
+            const bg = canvasManager.backgroundImage;
+            const settings = this.app.settings.config.background;
+            exportCtx.save();
+            exportCtx.globalAlpha = settings.opacity;
+            const w = bg.image.width * settings.scale;
+            const h = bg.image.height * settings.scale;
+            exportCtx.drawImage(bg.image, settings.x, settings.y, w, h);
+            exportCtx.restore();
+        }
+
+        const objectsToDraw = canvasManager.objects.filter(obj => {
+            return obj !== frame &&
+                   obj.x < frame.x + frame.width && obj.x + obj.width > frame.x &&
+                   obj.y < frame.y + frame.height && obj.y + obj.height > frame.y;
+        });
+
+        [...objectsToDraw].sort((a, b) => a.zIndex - b.zIndex).forEach(obj => {
+             if (obj.type === 'Title' && !this.app.settings.config.titleVisible) {
+                 return;
+            }
+            obj.draw(exportCtx);
+        });
+
+        exportCtx.restore();
+
+        const dataUrl = exportCanvas.toDataURL(format, 0.9);
+        const a = document.createElement('a');
+        a.href = dataUrl;
+        a.download = `export.${format.split('/')[1]}`;
+        a.click();
+        
+        this.app.ui.showPanel('main');
+    }
+}
+
+// =================================================================================
+// Application Entry Point
+// =================================================================================
+window.addEventListener('load', () => {
+    new SimpleTableApp();
+});
+
+</script>
+</body>
+</html>
