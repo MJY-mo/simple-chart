@@ -5,9 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>画像放り込みシンプル表作成</title>
     <link rel="icon" href="favicon2.png">
-    <!-- Tailwind CSS for styling -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts for web fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
@@ -51,39 +49,29 @@
 </head>
 <body class="bg-gray-100 h-screen flex flex-col">
 
-    <!-- Top Bar -->
     <header class="bg-white shadow-md p-2 flex items-center justify-between z-20">
         <h1 class="text-xl font-bold text-gray-700" data-lang-key="app-title">画像放り込みシンプル表作成</h1>
         <div class="flex items-center space-x-2">
-            <!-- 機能ボタン -->
             <button id="export-image-btn" class="px-4 py-2 rounded-lg shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 text-white bg-gray-500 hover:bg-gray-600 focus:ring-gray-400" data-lang-key="export">画像出力</button>
             <button id="help-btn" class="px-4 py-2 rounded-lg shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 text-white bg-gray-500 hover:bg-gray-600 focus:ring-gray-400" data-lang-key="help">操作方法</button>
 
-            <!-- 区切り線 -->
             <div class="border-l h-6 border-gray-300 mx-2"></div>
 
-            <!-- プロジェクト操作ボタン -->
             <button id="save-project-btn" class="px-4 py-2 rounded-lg shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 text-white bg-gray-500 hover:bg-gray-600 focus:ring-gray-400" data-lang-key="save">保存</button>
             <label for="load-project-input" class="px-4 py-2 rounded-lg shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 text-white bg-gray-500 hover:bg-gray-600 focus:ring-gray-400 cursor-pointer" data-lang-key="load">呼び出し</label>
             <input type="file" id="load-project-input" accept=".json">
 
-            <!-- 区切り線 -->
             <div class="border-l h-6 border-gray-300 mx-2"></div>
 
-            <!-- 言語切り替えボタン -->
             <button id="language-toggle-btn" class="px-4 py-2 rounded-lg shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 text-white bg-gray-500 hover:bg-gray-600 focus:ring-gray-400 w-24"></button>
         </div>
     </header>
 
-    <!-- Main Content -->
     <div class="flex flex-grow overflow-hidden">
-        <!-- Left Panel -->
         <aside class="w-80 bg-white p-4 shadow-lg flex-shrink-0 overflow-y-auto settings-panel z-10">
-            <!-- Main Settings Panel -->
             <div id="main-settings-panel">
                 <h2 class="text-lg font-bold mb-4 border-b pb-2" data-lang-key="settings-title">設定</h2>
                 <div class="space-y-2">
-                    <!-- フィールド設定アコーディオン -->
                     <div class="border-t">
                         <button id="accordion-field" class="w-full flex justify-between items-center py-2 text-left font-semibold accordion-header">
                             <span data-lang-key="field-settings">フィールド設定</span>
@@ -104,7 +92,7 @@
                                     <span data-lang-key="bg-drop-text">ここに背景画像をドロップ</span>
                                 </div>
                                 <div id="background-controls" class="mt-2 space-y-2 hidden">
-                                     <div>
+                                    <div>
                                         <label for="bg-opacity" class="block text-sm font-medium text-gray-700"><span data-lang-key="bg-opacity">画像透過度</span>: <span id="bg-opacity-value">1</span></label>
                                         <input type="range" id="bg-opacity" min="0" max="1" step="0.05" value="1" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
                                     </div>
@@ -129,7 +117,6 @@
                         </div>
                     </div>
 
-                    <!-- 画像設定アコーディオン -->
                     <div class="border-t">
                         <button id="accordion-image" class="w-full flex justify-between items-center py-2 text-left font-semibold accordion-header">
                             <span data-lang-key="img-settings">画像設定</span>
@@ -169,7 +156,6 @@
                 </div>
             </div>
 
-            <!-- Title Editor Panel -->
             <div id="title-editor-panel" class="hidden">
                  <div class="flex justify-between items-center mb-4 border-b pb-2">
                     <h2 class="text-lg font-bold" data-lang-key="title-edit-title">タイトル編集</h2>
@@ -233,7 +219,6 @@
                 </div>
             </div>
 
-            <!-- Image Text Editor Panel -->
             <div id="text-editor-panel" class="hidden">
                 <div class="flex justify-between items-center mb-4 border-b pb-2">
                     <h2 class="text-lg font-bold" data-lang-key="img-text-edit-title">画像内テキスト編集</h2>
@@ -303,7 +288,6 @@
                 </div>
             </div>
 
-            <!-- Help Panel -->
             <div id="help-panel" class="hidden">
                  <div class="flex justify-between items-center mb-4 border-b pb-2">
                     <h2 class="text-lg font-bold" data-lang-key="help-title"></h2>
@@ -345,7 +329,6 @@
                 </div>
             </div>
             
-            <!-- Export Panel -->
             <div id="export-panel" class="hidden">
                  <div class="flex justify-between items-center mb-4 border-b pb-2">
                     <h2 class="text-lg font-bold" data-lang-key="export-title">画像出力</h2>
@@ -363,7 +346,6 @@
                             <option value="image/jpeg">JPEG</option>
                         </select>
                     </div>
-                    <!-- ★追加: グリッド出力オプション -->
                     <div class="flex items-center justify-between border-t pt-4">
                         <label for="export-grid-toggle" class="text-sm font-medium text-gray-700" data-lang-key="export-include-grid">グリッドを出力に含める</label>
                         <input type="checkbox" id="export-grid-toggle" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
@@ -376,13 +358,11 @@
 
         </aside>
 
-        <!-- Canvas Area -->
         <main id="canvas-container" class="flex-grow bg-gray-200 flex items-center justify-center p-4 canvas-container overflow-auto">
             <canvas id="main-canvas" width="1440" height="810"></canvas>
         </main>
     </div>
     
-    <!-- ★追加: Notification Element -->
     <div id="notification" class="fixed bottom-4 right-4 px-4 py-2 rounded-lg shadow-lg text-white transition-opacity duration-300 opacity-0"></div>
 
 <script>
@@ -399,7 +379,7 @@ class SimpleTableApp {
         this.canvasManager = new CanvasManager(this, this.canvasEl, this.ctx);
         this.projectManager = new ProjectManager(this);
         this.exportManager = new ExportManager(this);
-        this.historyManager = new HistoryManager(this); // ★追加
+        this.historyManager = new HistoryManager(this);
 
         this.state = {
             editingMode: 'none', // 'none', 'title', 'imageText'
@@ -415,13 +395,13 @@ class SimpleTableApp {
         this.canvasManager.init();
         this.projectManager.init();
         this.exportManager.init();
-        this.historyManager.init(); // ★追加
+        this.historyManager.init();
         
         this.canvasManager.resizeCanvas();
         window.addEventListener('resize', () => this.canvasManager.resizeCanvas());
 
         this.drawLoop();
-        this.historyManager.saveState(); // ★追加: 初期状態を保存
+        this.historyManager.saveState();
     }
     
     drawLoop() {
@@ -452,7 +432,7 @@ class SimpleTableApp {
         this.state.editingMode = 'none';
         this.ui.hideAllEditors();
         this.canvasManager.deselectAll();
-        this.historyManager.saveState(); // ★修正
+        this.historyManager.saveState();
         this.update();
     }
 }
@@ -497,29 +477,28 @@ class CanvasManager {
     
     resizeCanvas() {
         const container = document.getElementById('canvas-container');
+        const oldWidth = this.canvas.width;
+        const oldHeight = this.canvas.height;
+
         this.canvas.width = container.clientWidth;
         this.canvas.height = container.clientHeight;
-        this.exportFrame.width = this.canvas.width;
-        this.exportFrame.height = this.canvas.height;
+
+        // Keep export frame size and position relative
+        this.exportFrame.width = Math.min(this.exportFrame.width, this.canvas.width);
+        this.exportFrame.height = Math.min(this.exportFrame.height, this.canvas.height);
+        this.exportFrame.x = Math.min(this.exportFrame.x, this.canvas.width - this.exportFrame.width);
+        this.exportFrame.y = Math.min(this.exportFrame.y, this.canvas.height - this.exportFrame.height);
+
+
         this.app.update();
     }
     
     draw() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         
-        if (this.backgroundImage && this.backgroundImage.image) {
-            const bg = this.backgroundImage;
-            const settings = this.app.settings.config.background;
-            this.ctx.save();
-            this.ctx.globalAlpha = settings.opacity;
-            const w = bg.image.width * settings.scale;
-            const h = bg.image.height * settings.scale;
-            this.ctx.drawImage(bg.image, settings.x, settings.y, w, h);
-            this.ctx.restore();
-        }
-
+        this.drawBackground(this.ctx);
         if (this.app.settings.config.gridSize > 0) {
-            this.drawGrid();
+            this.drawGrid(this.ctx);
         }
 
         [...this.objects].sort((a, b) => a.zIndex - b.zIndex).forEach(obj => {
@@ -529,27 +508,41 @@ class CanvasManager {
             obj.draw(this.ctx);
         });
         
-        if (this.selectedObject && this.app.state.editingMode === 'none') {
+        // ★ 修正点: ExportFrameは自身でハンドルを描画するため、ここでは描画しない
+        if (this.selectedObject && this.selectedObject.type !== 'ExportFrame' && this.app.state.editingMode === 'none') {
             this.selectedObject.drawHandles(this.ctx);
             this.selectedObject.drawInfo(this.ctx);
         }
     }
 
-    drawGrid() {
+    drawBackground(ctx) {
+        if (this.backgroundImage && this.backgroundImage.image) {
+            const bg = this.backgroundImage;
+            const settings = this.app.settings.config.background;
+            ctx.save();
+            ctx.globalAlpha = settings.opacity;
+            const w = bg.image.width * settings.scale;
+            const h = bg.image.height * settings.scale;
+            ctx.drawImage(bg.image, settings.x, settings.y, w, h);
+            ctx.restore();
+        }
+    }
+
+    drawGrid(ctx) {
         const gridSize = this.app.settings.config.gridSize;
         if (gridSize === 0) return;
-        this.ctx.beginPath();
-        this.ctx.strokeStyle = '#e0e0e0';
-        this.ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.strokeStyle = '#e0e0e0';
+        ctx.lineWidth = 1;
         for (let x = 0; x < this.canvas.width; x += gridSize) {
-            this.ctx.moveTo(x, 0);
-            this.ctx.lineTo(x, this.canvas.height);
+            ctx.moveTo(x, 0);
+            ctx.lineTo(x, this.canvas.height);
         }
         for (let y = 0; y < this.canvas.height; y += gridSize) {
-            this.ctx.moveTo(0, y);
-            this.ctx.lineTo(this.canvas.width, y);
+            ctx.moveTo(0, y);
+            ctx.lineTo(this.canvas.width, y);
         }
-        this.ctx.stroke();
+        ctx.stroke();
     }
     
     addMultipleImages(files, startX, startY) {
@@ -664,40 +657,54 @@ class CanvasManager {
             y: e.clientY - rect.top + container.scrollTop 
         };
     }
-
+    
     handleMouseDown(e) {
         const pos = this.getMousePos(e);
 
+        // ★ 修正点: 常にExportFrameのハンドル操作を最優先でチェック
+        const frameHandle = this.exportFrame.getHandleAt(pos.x, pos.y);
+        if (frameHandle && frameHandle.type === 'resize') {
+            this.resizingObject = { object: this.exportFrame, handle: frameHandle };
+            // ハンドル操作時はフレームを選択状態にする
+            if (this.selectedObject !== this.exportFrame) {
+                this.selectObject(this.exportFrame);
+            }
+            this.app.update();
+            return; // 操作が完了したのでここで終了
+        }
+
+        // Handle special editing modes first and exit immediately.
         if (this.app.state.editingMode === 'imageText') {
             const currentTextObject = this.app.ui.editorBindings.text.currentObject;
             const parentImage = this.objects.find(obj => obj.type === 'ImageObject' && obj.text === currentTextObject);
             
-            let isHitOnText = false;
             if (parentImage) {
                 const relativeX = pos.x - parentImage.x;
                 const relativeY = pos.y - parentImage.y;
                 if (currentTextObject.isHit(relativeX, relativeY)) {
-                    isHitOnText = true;
+                    this.draggingTextObject = currentTextObject;
+                    this.app.update();
+                    return; // Exit: We are dragging text.
                 }
             }
-
-            if (isHitOnText) {
-                this.draggingTextObject = currentTextObject;
-                return;
-            } else {
-                this.app.leaveEditMode();
-            }
-        }
-
+            // If not dragging text, leave edit mode.
+            this.app.leaveEditMode();
+            return; // Exit: The click's only purpose was to leave the mode.
+        } 
+        
         if (this.app.state.editingMode === 'title') {
             const titleObject = this.app.canvasManager.title;
-            if (titleObject.isHit(pos.x, pos.y)) {
-                return; 
-            } else {
+            if (!titleObject.isHit(pos.x, pos.y)) {
+                // Clicked outside title, leave edit mode.
                 this.app.leaveEditMode();
             }
+            // In either case (hit or miss), this click is consumed by the title edit mode.
+            return;
         }
 
+        // From here, we are in 'none' mode.
+        
+        // Handle Interaction with selected object (if any)
         if (this.selectedObject) {
             const handle = this.selectedObject.getHandleAt(pos.x, pos.y);
             if (handle) {
@@ -712,6 +719,7 @@ class CanvasManager {
             }
         }
         
+        // Find and select a new object
         let objectFound = false;
         const sortedObjects = [...this.objects].sort((a, b) => b.zIndex - a.zIndex);
         for (const obj of sortedObjects) {
@@ -732,6 +740,7 @@ class CanvasManager {
         }
         this.app.update();
     }
+
 
     handleMouseMove(e) {
         const pos = this.getMousePos(e);
@@ -766,7 +775,12 @@ class CanvasManager {
         }
         
         let cursor = 'default';
-        if (this.selectedObject) {
+
+        // ★ 修正点: ExportFrameのハンドルを優先的にチェック
+        const frameHandle = this.exportFrame.getHandleAt(pos.x, pos.y);
+        if (frameHandle) {
+            cursor = frameHandle.cursor;
+        } else if (this.selectedObject) {
             const handle = this.selectedObject.getHandleAt(pos.x, pos.y);
             if (handle) {
                 cursor = handle.cursor;
@@ -778,10 +792,9 @@ class CanvasManager {
     }
 
     handleMouseUp(e) {
-        const wasDraggingOrResizing = this.draggingObject || this.resizingObject;
+        const wasDraggingOrResizing = this.draggingObject || this.resizingObject || this.draggingTextObject;
         if (this.draggingTextObject) {
             this.draggingTextObject = null;
-            this.app.update();
         }
         if (this.draggingObject) {
             this.draggingObject.snapToGrid();
@@ -910,8 +923,10 @@ class DraggableObject {
     snapToGrid() {
         if (!this.isDraggable) return;
         const gridSize = this.app.settings.config.gridSize;
-        this.x = Math.round(this.x / gridSize) * gridSize;
-        this.y = Math.round(this.y / gridSize) * gridSize;
+        if (gridSize > 0) {
+            this.x = Math.round(this.x / gridSize) * gridSize;
+            this.y = Math.round(this.y / gridSize) * gridSize;
+        }
     }
     
     toJSON() {
@@ -938,7 +953,7 @@ class ImageObject extends DraggableObject {
         this.text = new TextObject({
             app: this.app,
             ...this.app.state.lastImageTextStyle,
-            ...(config.text || { text: '' }) // Ensure text obj exists, default to empty
+            ...(config.text || { text: '' }) 
         });
         this.text.x = this.width / 2;
         this.text.y = this.height / 2;
@@ -1013,36 +1028,51 @@ class ImageObject extends DraggableObject {
     }
 
     drawHandles(ctx) {
-        const handleSize = 10;
+        const handleRadius = 7; // ハンドルの表示半径
+
         // Resize handle
+        const resizeHandleX = this.x + this.width;
+        const resizeHandleY = this.y + this.height;
         ctx.fillStyle = 'rgba(0, 123, 255, 0.8)';
-        ctx.fillRect(this.x + this.width - handleSize / 2, this.y + this.height - handleSize / 2, handleSize, handleSize);
+        ctx.beginPath();
+        ctx.arc(resizeHandleX, resizeHandleY, handleRadius, 0, Math.PI * 2);
+        ctx.fill();
         
         // Delete handle
+        const deleteHandleX = this.x + this.width;
+        const deleteHandleY = this.y;
         ctx.fillStyle = 'rgba(220, 38, 38, 0.9)'; // Tailwind red-600
         ctx.beginPath();
-        ctx.arc(this.x + this.width, this.y, handleSize / 1.5, 0, Math.PI * 2);
+        ctx.arc(deleteHandleX, deleteHandleY, handleRadius, 0, Math.PI * 2);
         ctx.fill();
         ctx.save();
-        ctx.font = 'bold 12px sans-serif';
+        ctx.font = `bold ${handleRadius * 1.8}px sans-serif`;
         ctx.fillStyle = 'white';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText('×', this.x + this.width, this.y);
+        ctx.fillText('×', deleteHandleX, deleteHandleY + 1); // 見た目の中央に微調整
         ctx.restore();
     }
 
     getHandleAt(x, y) {
-        const handleSize = 12;
-        if (x >= this.x + this.width - handleSize && x <= this.x + this.width + handleSize &&
-            y >= this.y + this.height - handleSize && y <= this.y + this.height + handleSize) {
+        const handleHitboxRadius = 10; // ハンドルの当たり判定半径
+
+        // Resize handle hitbox
+        const resizeHandleX = this.x + this.width;
+        const resizeHandleY = this.y + this.height;
+        if (Math.sqrt(Math.pow(x - resizeHandleX, 2) + Math.pow(y - resizeHandleY, 2)) <= handleHitboxRadius) {
             return { type: 'resize', cursor: 'nwse-resize' };
         }
-        if (Math.sqrt(Math.pow(x - (this.x + this.width), 2) + Math.pow(y - this.y, 2)) <= handleSize / 1.5) {
+
+        // Delete handle hitbox
+        const deleteHandleX = this.x + this.width;
+        const deleteHandleY = this.y;
+        if (Math.sqrt(Math.pow(x - deleteHandleX, 2) + Math.pow(y - deleteHandleY, 2)) <= handleHitboxRadius) {
             return { type: 'delete', cursor: 'pointer' };
         }
         return null;
     }
+
 
     drawInfo(ctx) {
         const text = `W:${Math.round(this.width)} H:${Math.round(this.height)}`;
@@ -1089,7 +1119,7 @@ class TextObject extends DraggableObject {
         this.fontFamily = config.fontFamily || 'sans-serif';
         this.fontSize = config.fontSize || 16;
         this.fontWeight = config.fontWeight || 'normal';
-        this.fontStyle = config.fontStyle || 'normal'; // ★追加
+        this.fontStyle = config.fontStyle || 'normal';
         this.fillStyle = config.fillStyle || '#000000';
         this.textAlign = config.textAlign || 'center';
         this.shadow = config.shadow || { enabled: false, color: '#000000' };
@@ -1100,7 +1130,7 @@ class TextObject extends DraggableObject {
     draw(ctx) {
         if (!this.text) return;
         ctx.save();
-        ctx.font = `${this.fontStyle} ${this.fontWeight} ${this.fontSize}px ${this.fontFamily}`; // ★修正
+        ctx.font = `${this.fontStyle} ${this.fontWeight} ${this.fontSize}px ${this.fontFamily}`;
         ctx.textAlign = this.textAlign;
         ctx.textBaseline = 'middle';
         
@@ -1125,7 +1155,7 @@ class TextObject extends DraggableObject {
     getMetrics() {
         const ctx = this.app.ctx;
         ctx.save();
-        ctx.font = `${this.fontStyle} ${this.fontWeight} ${this.fontSize}px ${this.fontFamily}`; // ★修正
+        ctx.font = `${this.fontStyle} ${this.fontWeight} ${this.fontSize}px ${this.fontFamily}`;
         const metrics = ctx.measureText(this.text);
         ctx.restore();
         return metrics;
@@ -1136,7 +1166,10 @@ class TextObject extends DraggableObject {
         
         const metrics = this.getMetrics();
         const textWidth = metrics.width;
-        const textHeight = this.fontSize; 
+        let textHeight = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
+        if (!textHeight || textHeight === 0) { // Fallback for browsers that don't support it well
+            textHeight = this.fontSize * 1.2;
+        }
         
         let xStart;
         if (this.textAlign === 'center') {
@@ -1147,8 +1180,11 @@ class TextObject extends DraggableObject {
             xStart = this.x;
         }
 
+        // Since textBaseline is 'middle', the vertical center is this.y
+        const yStart = this.y - textHeight / 2;
+
         return x >= xStart && x <= xStart + textWidth &&
-               y >= this.y - textHeight / 2 && y <= this.y + textHeight / 2;
+               y >= yStart && y <= yStart + textHeight;
     }
     
     toJSON() {
@@ -1157,7 +1193,7 @@ class TextObject extends DraggableObject {
         data.fontFamily = this.fontFamily;
         data.fontSize = this.fontSize;
         data.fontWeight = this.fontWeight;
-        data.fontStyle = this.fontStyle; // ★追加
+        data.fontStyle = this.fontStyle;
         data.fillStyle = this.fillStyle;
         data.textAlign = this.textAlign;
         data.shadow = this.shadow;
@@ -1199,10 +1235,11 @@ class Title extends TextObject {
 // =================================================================================
 class ExportFrame extends DraggableObject {
     constructor(config) {
-        super({ ...config, isDraggable: false, isEditable: true, zIndex: 0 });
+        super({ ...config, isDraggable: true, isEditable: true, zIndex: 0 });
         this.type = 'ExportFrame';
     }
 
+    // ★ 修正点: 常にハンドルと情報を描画する
     draw(ctx) {
         ctx.save();
         ctx.strokeStyle = 'rgba(0, 123, 255, 0.7)';
@@ -1210,9 +1247,15 @@ class ExportFrame extends DraggableObject {
         ctx.setLineDash([8, 4]);
         ctx.strokeRect(this.x, this.y, this.width, this.height);
         ctx.restore();
+
+        this.drawHandles(ctx);
+        this.drawInfo(ctx);
     }
 
     isHit(x, y) {
+        if (this.getHandleAt(x, y)) {
+            return true;
+        }
         const margin = 5;
         const onHorizontal = (y > this.y - margin && y < this.y + margin) || (y > this.y + this.height - margin && y < this.y + this.height + margin);
         const onVertical = (x > this.x - margin && x < this.x + margin) || (x > this.x + this.width - margin && x < this.x + this.width + margin);
@@ -1220,17 +1263,20 @@ class ExportFrame extends DraggableObject {
     }
     
     resize(newX, newY, handle) {
+        const minSize = 50;
         if (handle.pos === 'br') {
-            this.width = newX - this.x;
-            this.height = newY - this.y;
+            this.width = Math.max(minSize, newX - this.x);
+            this.height = Math.max(minSize, newY - this.y);
         }
-        
-        this.width = Math.max(50, this.width);
-        this.height = Math.max(50, this.height);
-        
-        this.x = 0;
-        this.y = 0;
     }
+    
+    move(dx, dy) {
+        super.move(dx, dy);
+        const canvas = this.app.canvasManager.canvas;
+        this.x = Math.max(0, Math.min(this.x, canvas.width - this.width));
+        this.y = Math.max(0, Math.min(this.y, canvas.height - this.height));
+    }
+
 
     drawHandles(ctx) {
         const handleSize = 10;
@@ -1260,17 +1306,22 @@ class ExportFrame extends DraggableObject {
         const text = `W:${Math.round(this.width)} H:${Math.round(this.height)}`;
         const lang = this.app.settings.config.language;
         const label = this.app.ui.translations[lang]['export-area-label'] || `出力範囲:`;
+        const fullText = `${label} ${text}`;
+        
+        const textMetrics = ctx.measureText(fullText);
+        const padding = 5;
+        const rectWidth = textMetrics.width + padding * 2;
+        const rectHeight = 20;
+        const rectX = this.x + this.width - rectWidth - padding;
+        const rectY = this.y + this.height - rectHeight - padding;
 
         ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-        ctx.fillRect(this.x, this.y + this.height, ctx.measureText(`${label} ${text}`).width + 10, 20);
+        ctx.fillRect(rectX, rectY, rectWidth, rectHeight);
         ctx.fillStyle = 'white';
         ctx.font = '12px sans-serif';
-        ctx.fillText(`${label} ${text}`, this.x + 5, this.y + this.height + 15);
+        ctx.fillText(fullText, rectX + padding, rectY + rectHeight / 2 + 5);
     }
     
-    snapToGrid() {}
-    move(dx, dy) {}
-
     static fromJSON(data, app) {
         return new ExportFrame({ ...data, app });
     }
@@ -1299,6 +1350,7 @@ class SettingsManager {
             gridSize: 5,
             maxImageSize: 240,
             imageBorder: {
+                enabled: true,
                 width: 2,
                 color: '#000000',
                 radius: 8
@@ -1429,6 +1481,9 @@ class SettingsManager {
         
         this.config.imageBorder.enabled = this.config.imageBorder.width > 0;
         document.getElementById('img-border-settings').style.display = this.config.imageBorder.enabled ? 'block' : 'none';
+        
+        const gridSizeEl = document.getElementById('grid-size');
+        this.config.gridVisible = gridSizeEl.value > 0;
     }
 
     setConfigValue(key, value) {
@@ -1591,13 +1646,11 @@ class UIManager {
         const exportBtn = this.headerButtons.export;
         const helpBtn = this.headerButtons.help;
 
-        // Reset all buttons to gray
         exportBtn.classList.remove('bg-purple-500', 'hover:bg-purple-600', 'focus:ring-purple-400');
         exportBtn.classList.add('bg-gray-500', 'hover:bg-gray-600', 'focus:ring-gray-400');
         helpBtn.classList.remove('bg-green-500', 'hover:bg-green-600', 'focus:ring-green-400');
         helpBtn.classList.add('bg-gray-500', 'hover:bg-gray-600', 'focus:ring-gray-400');
 
-        // Set active button color
         if (activePanelName === 'export') {
             exportBtn.classList.remove('bg-gray-500', 'hover:bg-gray-600', 'focus:ring-gray-400');
             exportBtn.classList.add('bg-purple-500', 'hover:bg-purple-600', 'focus:ring-purple-400');
@@ -1695,6 +1748,7 @@ class UIManager {
 
         for (const idSuffix in bindings) {
             const el = document.getElementById(`${prefix}-${idSuffix}`);
+            if (!el) continue;
             const eventType = (el.type === 'checkbox' || el.tagName === 'SELECT' || el.type === 'color') ? 'change' : 'input';
             
             el.addEventListener(eventType, (e) => {
@@ -1804,12 +1858,12 @@ class ProjectManager {
         this.app.ui.showNotification('プロジェクトを保存しました');
     }
 
-    load(event) {
+    async load(event) {
         const file = event.target.files[0];
         if (!file) return;
 
         const reader = new FileReader();
-        reader.onload = (e) => {
+        reader.onload = async (e) => {
             try {
                 const projectData = JSON.parse(e.target.result);
                 if (!projectData.version || projectData.version < 5) {
@@ -1827,7 +1881,7 @@ class ProjectManager {
                     this.app.state.lastImageTextStyle = projectData.lastImageTextStyle;
                 }
                 
-                this.app.canvasManager.loadObjects(projectData);
+                await this.app.canvasManager.restoreState(projectData);
                 
                 this.app.settings.applySettings();
                 this.app.ui.showNotification('プロジェクトを読み込みました');
@@ -1875,44 +1929,28 @@ class ExportManager {
 
         exportCtx.save();
         exportCtx.scale(scale, scale);
-        exportCtx.translate(-frame.x, -frame.y);
-
+        
         const canvasManager = this.app.canvasManager;
-        if (canvasManager.backgroundImage && canvasManager.backgroundImage.image) {
-            const bg = canvasManager.backgroundImage;
-            const settings = this.app.settings.config.background;
-            exportCtx.save();
-            exportCtx.globalAlpha = settings.opacity;
-            const w = bg.image.width * settings.scale;
-            const h = bg.image.height * settings.scale;
-            exportCtx.drawImage(bg.image, settings.x, settings.y, w, h);
-            exportCtx.restore();
-        }
 
+        // Draw background relative to the entire canvas, then clip
+        exportCtx.save();
+        exportCtx.translate(-frame.x, -frame.y);
+        canvasManager.drawBackground(exportCtx);
         if (includeGrid) {
-            const gridSize = this.app.settings.config.gridSize;
-            exportCtx.beginPath();
-            exportCtx.strokeStyle = '#e0e0e0';
-            exportCtx.lineWidth = 1;
-            for (let x = 0; x < canvasManager.canvas.width; x += gridSize) {
-                exportCtx.moveTo(x, 0);
-                exportCtx.lineTo(x, canvasManager.canvas.height);
-            }
-            for (let y = 0; y < canvasManager.canvas.height; y += gridSize) {
-                exportCtx.moveTo(0, y);
-                exportCtx.lineTo(canvasManager.canvas.width, y);
-            }
-            exportCtx.stroke();
+            canvasManager.drawGrid(exportCtx);
         }
+        exportCtx.restore();
+
 
         exportCtx.beginPath();
-        exportCtx.rect(frame.x, frame.y, frame.width, frame.height);
+        exportCtx.rect(0, 0, frame.width, frame.height);
         exportCtx.clip();
+        
+        exportCtx.translate(-frame.x, -frame.y);
+
 
         const objectsToDraw = canvasManager.objects.filter(obj => {
-            return obj !== frame &&
-                   obj.x < frame.x + frame.width && obj.x + obj.width > frame.x &&
-                   obj.y < frame.y + frame.height && obj.y + obj.height > frame.y;
+            return obj !== frame;
         });
 
         [...objectsToDraw].sort((a, b) => a.zIndex - b.zIndex).forEach(obj => {
@@ -1935,7 +1973,7 @@ class ExportManager {
 }
 
 // =================================================================================
-// ★追加: History Manager Class
+// History Manager Class
 // =================================================================================
 class HistoryManager {
     constructor(app) {
