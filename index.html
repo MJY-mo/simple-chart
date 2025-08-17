@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>画像放り込みシンプル表作成</title>
+    <link rel="icon" href="favicon2.ico">
     <!-- Tailwind CSS for styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts for web fonts -->
@@ -31,13 +32,20 @@
         .settings-panel::-webkit-scrollbar-thumb:hover { background: #555; }
         /* Hide default file input */
         input[type="file"] { display: none; }
-        /* ★追加: 背景ドロップエリアのスタイル */
+        /* 背景ドロップエリアのスタイル */
         #background-drop-area {
             border: 2px dashed #cbd5e1;
             transition: background-color 0.2s;
         }
         #background-drop-area.dragover {
             background-color: #e2e8f0;
+        }
+        /* アコーディオンの矢印 */
+        .accordion-arrow {
+            transition: transform 0.2s ease-in-out;
+        }
+        .accordion-header.open .accordion-arrow {
+            transform: rotate(90deg);
         }
     </style>
 </head>
@@ -74,76 +82,89 @@
             <!-- Main Settings Panel -->
             <div id="main-settings-panel">
                 <h2 class="text-lg font-bold mb-4 border-b pb-2" data-lang-key="settings-title">設定</h2>
-                <div class="space-y-4">
-                    <div class="border-t pt-4">
-                        <div class="flex items-center justify-between">
-                            <label for="title-visible-toggle" class="text-sm font-medium text-gray-700" data-lang-key="show-title">タイトルを表示</label>
-                            <input type="checkbox" id="title-visible-toggle" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
-                        </div>
-                    </div>
-                    <!-- ★修正: グリッド設定エリア -->
-                    <div class="border-t pt-4">
-                        <div class="flex items-center justify-between mb-2">
-                            <label for="grid-visible-toggle" class="text-sm font-medium text-gray-700" data-lang-key="show-grid">グリッドを表示</label>
-                            <input type="checkbox" id="grid-visible-toggle" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
-                        </div>
-                        <div id="grid-settings">
-                            <label for="grid-size" class="block text-sm font-medium text-gray-700"><span data-lang-key="grid-width">グリッド幅</span>: <span id="grid-size-value">5</span>px</label>
-                            <input type="range" id="grid-size" min="5" max="50" value="5" step="5" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
-                        </div>
-                    </div>
-                    <div>
-                        <label for="max-img-size" class="block text-sm font-medium text-gray-700"><span data-lang-key="max-img-size">画像最大サイズ</span>: <span id="max-img-size-value">240</span>px</label>
-                        <input type="range" id="max-img-size" min="50" max="1000" value="240" step="5" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
-                    </div>
-                    <div class="border-t pt-4">
-                        <h3 class="text-md font-semibold mb-2" data-lang-key="img-frame-settings">画像フレーム設定</h3>
-                        <div class="flex items-center justify-between">
-                            <label for="img-border-toggle" class="text-sm font-medium text-gray-700" data-lang-key="enable-border">枠線をつける</label>
-                            <input type="checkbox" id="img-border-toggle" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
-                        </div>
-                        <div id="img-border-settings" class="mt-2 space-y-2 hidden">
-                            <div>
-                                <label for="img-border-width" class="block text-sm font-medium text-gray-700"><span data-lang-key="border-width">枠線の幅</span>: <span id="img-border-width-value">2</span>px</label>
-                                <input type="range" id="img-border-width" min="1" max="20" value="2" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                <div class="space-y-2">
+                    <!-- フィールド設定アコーディオン -->
+                    <div class="border-t">
+                        <button id="accordion-field" class="w-full flex justify-between items-center py-2 text-left font-semibold accordion-header">
+                            <span data-lang-key="field-settings">フィールド設定</span>
+                            <span class="accordion-arrow">▶</span>
+                        </button>
+                        <div id="accordion-field-content" class="hidden pl-2 space-y-4 pt-2">
+                            <div class="flex items-center justify-between">
+                                <label for="title-visible-toggle" class="text-sm font-medium text-gray-700" data-lang-key="show-title">タイトルを表示</label>
+                                <input type="checkbox" id="title-visible-toggle" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
                             </div>
                             <div>
-                                <label for="img-border-color" class="block text-sm font-medium text-gray-700" data-lang-key="border-color">枠線の色</label>
-                                <input type="color" id="img-border-color" value="#000000" class="w-full h-8 p-1 border border-gray-300 rounded-lg">
+                                <label for="grid-size" class="block text-sm font-medium text-gray-700"><span data-lang-key="grid-width">グリッド幅</span>: <span id="grid-size-value">5</span>px</label>
+                                <input type="range" id="grid-size" min="0" max="50" value="5" step="5" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
                             </div>
                             <div>
-                                <label for="img-border-radius" class="block text-sm font-medium text-gray-700"><span data-lang-key="corner-radius">角の丸み</span>: <span id="img-border-radius-value">8</span>px</label>
-                                <input type="range" id="img-border-radius" min="0" max="50" value="8" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                                <h3 class="text-md font-semibold mb-2" data-lang-key="bg-settings">背景設定</h3>
+                                <div id="background-drop-area" class="p-4 rounded-lg text-center text-gray-500">
+                                    <span data-lang-key="bg-drop-text">ここに背景画像をドロップ</span>
+                                </div>
+                                <div id="background-controls" class="mt-2 space-y-2 hidden">
+                                     <div>
+                                        <label for="bg-opacity" class="block text-sm font-medium text-gray-700"><span data-lang-key="bg-opacity">画像透過度</span>: <span id="bg-opacity-value">1</span></label>
+                                        <input type="range" id="bg-opacity" min="0" max="1" step="0.05" value="1" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                                    </div>
+                                    <div>
+                                        <label for="bg-scale" class="block text-sm font-medium text-gray-700"><span data-lang-key="bg-scale">拡大率</span>: <span id="bg-scale-value">1</span></label>
+                                        <input type="range" id="bg-scale" min="0.1" max="5" step="0.1" value="1" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                                    </div>
+                                    <div>
+                                        <label for="bg-pos-x" class="block text-sm font-medium text-gray-700"><span data-lang-key="bg-pos-x">位置（横）</span>: <span id="bg-pos-x-value">0</span>px</label>
+                                        <input type="range" id="bg-pos-x" min="-1000" max="1000" value="0" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                                    </div>
+                                     <div>
+                                        <label for="bg-pos-y" class="block text-sm font-medium text-gray-700"><span data-lang-key="bg-pos-y">位置（縦）</span>: <span id="bg-pos-y-value">0</span>px</label>
+                                        <input type="range" id="bg-pos-y" min="-1000" max="1000" value="0" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                                    </div>
+                                    <button id="remove-bg-btn" class="w-full mt-2 px-4 py-2 rounded-lg shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 text-white bg-red-500 hover:bg-red-600 focus:ring-red-400" data-lang-key="bg-remove">背景を削除</button>
+                                </div>
                             </div>
-                        </div>
-                    </div>
-                    <!-- ★追加: 背景設定エリア -->
-                    <div class="border-t pt-4">
-                        <h3 class="text-md font-semibold mb-2" data-lang-key="bg-settings">背景設定</h3>
-                        <div id="background-drop-area" class="p-4 rounded-lg text-center text-gray-500">
-                            <span data-lang-key="bg-drop-text">ここに背景画像をドロップ</span>
-                        </div>
-                        <div id="background-controls" class="mt-2 space-y-2">
-                             <div>
-                                <label for="bg-opacity" class="block text-sm font-medium text-gray-700"><span data-lang-key="bg-opacity">透過度</span>: <span id="bg-opacity-value">1</span></label>
-                                <input type="range" id="bg-opacity" min="0" max="1" step="0.05" value="1" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
-                            </div>
-                            <div>
-                                <label for="bg-scale" class="block text-sm font-medium text-gray-700"><span data-lang-key="bg-scale">拡大率</span>: <span id="bg-scale-value">1</span></label>
-                                <input type="range" id="bg-scale" min="0.1" max="5" step="0.1" value="1" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
-                            </div>
-                            <div>
-                                <label for="bg-pos-x" class="block text-sm font-medium text-gray-700"><span data-lang-key="bg-pos-x">X位置</span>: <span id="bg-pos-x-value">0</span>px</label>
-                                <input type="range" id="bg-pos-x" min="-1000" max="1000" value="0" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
-                            </div>
-                             <div>
-                                <label for="bg-pos-y" class="block text-sm font-medium text-gray-700"><span data-lang-key="bg-pos-y">Y位置</span>: <span id="bg-pos-y-value">0</span>px</label>
-                                <input type="range" id="bg-pos-y" min="-1000" max="1000" value="0" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                             <div class="pt-2">
+                                <button class="w-full reset-settings-btn px-4 py-2 rounded-lg shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 bg-yellow-500 hover:bg-yellow-600 text-gray-800 focus:ring-yellow-400" data-lang-key="reset-settings" data-reset-type="field">設定をリセット</button>
                             </div>
                         </div>
                     </div>
-                    <div class="border-t pt-4">
-                        <button id="reset-settings-btn" class="w-full px-4 py-2 rounded-lg shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 bg-yellow-500 hover:bg-yellow-600 text-gray-800 focus:ring-yellow-400" data-lang-key="reset-settings">設定をデフォルトに戻す</button>
+
+                    <!-- 画像設定アコーディオン -->
+                    <div class="border-t">
+                        <button id="accordion-image" class="w-full flex justify-between items-center py-2 text-left font-semibold accordion-header">
+                            <span data-lang-key="img-settings">画像設定</span>
+                            <span class="accordion-arrow">▶</span>
+                        </button>
+                        <div id="accordion-image-content" class="hidden pl-2 space-y-4 pt-2">
+                            <div>
+                                <label for="max-img-size" class="block text-sm font-medium text-gray-700"><span data-lang-key="max-img-size">追加する画像サイズ（リサイズ後）</span>: <span id="max-img-size-value">240</span>px</label>
+                                <input type="range" id="max-img-size" min="50" max="1000" value="240" step="5" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                            </div>
+                            <div>
+                                <div id="img-border-settings" class="mt-2 space-y-2">
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label for="img-border-width" class="block text-sm font-medium text-gray-700"><span data-lang-key="border-width">枠線の幅</span>: <span id="img-border-width-value">2</span>px</label>
+                                            <input type="range" id="img-border-width" min="0" max="20" value="2" step="1" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                                        </div>
+                                        <div>
+                                            <label for="img-border-color" class="block text-sm font-medium text-gray-700" data-lang-key="border-color">枠線の色</label>
+                                            <input type="color" id="img-border-color" value="#000000" class="w-full h-8 p-1 border border-gray-300 rounded-lg">
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label for="img-border-radius" class="block text-sm font-medium text-gray-700"><span data-lang-key="corner-radius">角の丸み</span>: <span id="img-border-radius-value">8</span>px</label>
+                                        <input type="range" id="img-border-radius" min="0" max="50" value="8" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="pt-2">
+                                <button class="w-full reset-settings-btn px-4 py-2 rounded-lg shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 bg-yellow-500 hover:bg-yellow-600 text-gray-800 focus:ring-yellow-400" data-lang-key="reset-settings" data-reset-type="image">設定をリセット</button>
+                            </div>
+                            <div class="pt-2">
+                                <button id="apply-image-settings-all" class="w-full px-4 py-2 rounded-lg shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 bg-blue-500 hover:bg-blue-600 text-white focus:ring-blue-400" data-lang-key="apply-to-all">全ての画像に変更を適用する</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -152,12 +173,21 @@
             <div id="title-editor-panel" class="hidden">
                  <div class="flex justify-between items-center mb-4 border-b pb-2">
                     <h2 class="text-lg font-bold" data-lang-key="title-edit-title">タイトル編集</h2>
-                    <button id="close-title-editor-btn" class="text-gray-500 hover:text-gray-800 text-2xl leading-none">&times;</button>
+                    <button id="close-title-editor-btn" class="px-3 py-1 text-sm rounded-md bg-gray-200 hover:bg-gray-300 transition-colors" data-lang-key="return-to-settings">設定に戻る</button>
                 </div>
                 <div class="space-y-3">
                     <div>
                         <label for="title-content" class="block text-sm font-medium text-gray-700" data-lang-key="text">テキスト</label>
                         <textarea id="title-content" rows="2" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"></textarea>
+                    </div>
+                    <div>
+                        <label for="title-font-family" class="block text-sm font-medium text-gray-700" data-lang-key="font-family">フォント</label>
+                        <select id="title-font-family" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                            <option value="'Noto Sans JP', sans-serif">Noto Sans JP</option>
+                            <option value="'Roboto', sans-serif">Roboto</option>
+                            <option value="serif">Serif</option>
+                            <option value="monospace">Monospace</option>
+                        </select>
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                         <div>
@@ -165,22 +195,19 @@
                             <input type="number" id="title-font-size" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                         </div>
                         <div>
-                            <label for="title-font-family" class="block text-sm font-medium text-gray-700" data-lang-key="font-family">フォント</label>
-                            <select id="title-font-family" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
-                                <option value="'Noto Sans JP', sans-serif">Noto Sans JP</option>
-                                <option value="'Roboto', sans-serif">Roboto</option>
-                                <option value="serif">Serif</option>
-                                <option value="monospace">Monospace</option>
-                            </select>
+                            <label for="title-color" class="block text-sm font-medium text-gray-700" data-lang-key="text-color">文字色</label>
+                            <input type="color" id="title-color" class="w-full h-8 p-1 border border-gray-300 rounded-lg">
                         </div>
                     </div>
-                    <div>
-                        <label for="title-color" class="block text-sm font-medium text-gray-700" data-lang-key="text-color">文字色</label>
-                        <input type="color" id="title-color" class="w-full h-8 p-1 border border-gray-300 rounded-lg">
-                    </div>
-                    <div class="flex items-center">
-                        <input type="checkbox" id="title-bold" class="h-4 w-4 text-blue-600 border-gray-300 rounded">
-                        <label for="title-bold" class="ml-2 block text-sm text-gray-900" data-lang-key="bold">太字</label>
+                    <div class="flex items-center space-x-4">
+                        <div class="flex items-center">
+                            <input type="checkbox" id="title-bold" class="h-4 w-4 text-blue-600 border-gray-300 rounded">
+                            <label for="title-bold" class="ml-2 block text-sm text-gray-900" data-lang-key="bold">太字</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="checkbox" id="title-italic" class="h-4 w-4 text-blue-600 border-gray-300 rounded">
+                            <label for="title-italic" class="ml-2 block text-sm text-gray-900" data-lang-key="italic">斜体</label>
+                        </div>
                     </div>
                      <div class="border-t pt-3">
                         <h3 class="text-md font-semibold mb-2" data-lang-key="shadow">影</h3>
@@ -210,12 +237,21 @@
             <div id="text-editor-panel" class="hidden">
                 <div class="flex justify-between items-center mb-4 border-b pb-2">
                     <h2 class="text-lg font-bold" data-lang-key="img-text-edit-title">画像内テキスト編集</h2>
-                    <button id="close-text-editor-btn" class="text-gray-500 hover:text-gray-800 text-2xl leading-none">&times;</button>
+                    <button id="close-text-editor-btn" class="px-3 py-1 text-sm rounded-md bg-gray-200 hover:bg-gray-300 transition-colors" data-lang-key="return-to-settings">設定に戻る</button>
                 </div>
                 <div class="space-y-3">
                     <div>
                         <label for="text-content" class="block text-sm font-medium text-gray-700" data-lang-key="text">テキスト</label>
                         <textarea id="text-content" rows="2" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"></textarea>
+                    </div>
+                    <div>
+                        <label for="text-font-family" class="block text-sm font-medium text-gray-700" data-lang-key="font-family">フォント</label>
+                        <select id="text-font-family" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                            <option value="'Noto Sans JP', sans-serif">Noto Sans JP</option>
+                            <option value="'Roboto', sans-serif">Roboto</option>
+                            <option value="serif">Serif</option>
+                            <option value="monospace">Monospace</option>
+                        </select>
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                         <div>
@@ -223,22 +259,19 @@
                             <input type="number" id="text-font-size" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                         </div>
                         <div>
-                            <label for="text-font-family" class="block text-sm font-medium text-gray-700" data-lang-key="font-family">フォント</label>
-                            <select id="text-font-family" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
-                                <option value="'Noto Sans JP', sans-serif">Noto Sans JP</option>
-                                <option value="'Roboto', sans-serif">Roboto</option>
-                                <option value="serif">Serif</option>
-                                <option value="monospace">Monospace</option>
-                            </select>
+                            <label for="text-color" class="block text-sm font-medium text-gray-700" data-lang-key="text-color">文字色</label>
+                            <input type="color" id="text-color" class="w-full h-8 p-1 border border-gray-300 rounded-lg">
                         </div>
                     </div>
-                    <div>
-                        <label for="text-color" class="block text-sm font-medium text-gray-700" data-lang-key="text-color">文字色</label>
-                        <input type="color" id="text-color" class="w-full h-8 p-1 border border-gray-300 rounded-lg">
-                    </div>
-                    <div class="flex items-center">
-                        <input type="checkbox" id="text-bold" class="h-4 w-4 text-blue-600 border-gray-300 rounded">
-                        <label for="text-bold" class="ml-2 block text-sm text-gray-900" data-lang-key="bold">太字</label>
+                    <div class="flex items-center space-x-4">
+                        <div class="flex items-center">
+                            <input type="checkbox" id="text-bold" class="h-4 w-4 text-blue-600 border-gray-300 rounded">
+                            <label for="text-bold" class="ml-2 block text-sm text-gray-900" data-lang-key="bold">太字</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="checkbox" id="text-italic" class="h-4 w-4 text-blue-600 border-gray-300 rounded">
+                            <label for="text-italic" class="ml-2 block text-sm text-gray-900" data-lang-key="italic">斜体</label>
+                        </div>
                     </div>
                      <div class="border-t pt-3">
                         <h3 class="text-md font-semibold mb-2" data-lang-key="shadow">影</h3>
@@ -261,6 +294,9 @@
                             <input type="range" id="text-stroke-width" min="1" max="10" value="1" class="w-full h-2 bg-gray-200 rounded-lg">
                         </div>
                     </div>
+                    <div class="border-t pt-3">
+                        <button id="apply-text-style-all" class="w-full px-4 py-2 rounded-lg shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 bg-blue-500 hover:bg-blue-600 text-white focus:ring-blue-400" data-lang-key="apply-to-all">全ての画像に変更を適用する</button>
+                    </div>
                     <div class="border-t pt-3" id="text-position-reset-container">
                         <button id="reset-text-position-btn" class="w-full px-4 py-2 rounded-lg shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 text-white bg-gray-500 hover:bg-gray-600 focus:ring-gray-400" data-lang-key="reset-text-pos">テキスト位置を中央に戻す</button>
                     </div>
@@ -270,34 +306,41 @@
             <!-- Help Panel -->
             <div id="help-panel" class="hidden">
                  <div class="flex justify-between items-center mb-4 border-b pb-2">
-                    <h2 class="text-lg font-bold" data-lang-key="help-title">操作方法</h2>
-                    <button id="close-help-btn" class="text-gray-500 hover:text-gray-800 text-2xl leading-none">&times;</button>
+                    <h2 class="text-lg font-bold" data-lang-key="help-title"></h2>
+                    <button id="close-help-btn" class="px-3 py-1 text-sm rounded-md bg-gray-200 hover:bg-gray-300 transition-colors" data-lang-key="return-to-settings"></button>
                 </div>
                 <div class="space-y-4 text-sm">
                     <div class="p-2 bg-gray-100 rounded">
-                        <h3 class="font-bold" data-lang-key="help-basic-ops">基本操作</h3>
-                        <ul class="list-disc list-inside mt-1">
-                            <li data-lang-key="help-add-img"><strong>画像追加:</strong> PCから画像をキャンバスにドラッグ＆ドロップします。</li>
-                            <li data-lang-key="help-move"><strong>移動:</strong> オブジェクトをドラッグして移動します。</li>
-                            <li data-lang-key="help-select"><strong>選択:</strong> オブジェクトをクリックして選択します。</li>
-                            <li data-lang-key="help-z-index"><strong>重ね順:</strong> 選択したオブジェクトが最前面に移動します。</li>
-                        </ul>
+                        <h3 class="font-bold" data-lang-key="help-title-settings"></h3>
+                        <p class="mt-1" data-lang-key="help-desc-settings"></p>
                     </div>
                     <div class="p-2 bg-gray-100 rounded">
-                        <h3 class="font-bold" data-lang-key="help-obj-edit">オブジェクト編集</h3>
-                        <ul class="list-disc list-inside mt-1">
-                            <li data-lang-key="help-resize"><strong>リサイズ:</strong> 選択したオブジェクトの右下ハンドルをドラッグします。</li>
-                            <li data-lang-key="help-delete"><strong>削除:</strong> 選択したオブジェクトの右上ボタンをクリックします。</li>
-                            <li data-lang-key="help-text-edit"><strong>テキスト編集:</strong> タイトルや画像をダブルクリックします。</li>
-                        </ul>
+                        <h3 class="font-bold" data-lang-key="help-title-add-img"></h3>
+                        <p class="mt-1" data-lang-key="help-desc-add-img"></p>
                     </div>
                     <div class="p-2 bg-gray-100 rounded">
-                        <h3 class="font-bold" data-lang-key="help-save-export">保存と出力</h3>
-                        <ul class="list-disc list-inside mt-1">
-                            <li data-lang-key="help-save-desc"><strong>保存:</strong> 現在の状態をファイル(.json)に保存します。</li>
-                            <li data-lang-key="help-load-desc"><strong>呼び出し:</strong> 保存したファイルを読み込みます。</li>
-                            <li data-lang-key="help-export-desc"><strong>画像出力:</strong> 出力枠内の内容を画像として保存します。</li>
-                        </ul>
+                        <h3 class="font-bold" data-lang-key="help-title-reorder"></h3>
+                        <p class="mt-1" data-lang-key="help-desc-reorder"></p>
+                    </div>
+                    <div class="p-2 bg-gray-100 rounded">
+                        <h3 class="font-bold" data-lang-key="help-title-edit-title"></h3>
+                        <p class="mt-1" data-lang-key="help-desc-edit-title"></p>
+                    </div>
+                    <div class="p-2 bg-gray-100 rounded">
+                        <h3 class="font-bold" data-lang-key="help-title-edit-img-text"></h3>
+                        <p class="mt-1" data-lang-key="help-desc-edit-img-text"></p>
+                    </div>
+                    <div class="p-2 bg-gray-100 rounded">
+                        <h3 class="font-bold" data-lang-key="help-title-delete-img"></h3>
+                        <p class="mt-1" data-lang-key="help-desc-delete-img"></p>
+                    </div>
+                    <div class="p-2 bg-gray-100 rounded">
+                        <h3 class="font-bold" data-lang-key="help-title-save-load"></h3>
+                        <p class="mt-1" data-lang-key="help-desc-save-load"></p>
+                    </div>
+                    <div class="p-2 bg-gray-100 rounded">
+                        <h3 class="font-bold" data-lang-key="help-title-export"></h3>
+                        <p class="mt-1" data-lang-key="help-desc-export"></p>
                     </div>
                 </div>
             </div>
@@ -306,7 +349,7 @@
             <div id="export-panel" class="hidden">
                  <div class="flex justify-between items-center mb-4 border-b pb-2">
                     <h2 class="text-lg font-bold" data-lang-key="export-title">画像出力</h2>
-                    <button id="close-export-panel-btn" class="text-gray-500 hover:text-gray-800 text-2xl leading-none">&times;</button>
+                    <button id="close-export-panel-btn" class="px-3 py-1 text-sm rounded-md bg-gray-200 hover:bg-gray-300 transition-colors" data-lang-key="return-to-settings">設定に戻る</button>
                 </div>
                 <div class="space-y-4">
                     <div>
@@ -319,6 +362,11 @@
                             <option value="image/png">PNG</option>
                             <option value="image/jpeg">JPEG</option>
                         </select>
+                    </div>
+                    <!-- ★追加: グリッド出力オプション -->
+                    <div class="flex items-center justify-between border-t pt-4">
+                        <label for="export-grid-toggle" class="text-sm font-medium text-gray-700" data-lang-key="export-include-grid">グリッドを出力に含める</label>
+                        <input type="checkbox" id="export-grid-toggle" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
                     </div>
                 </div>
                 <div class="mt-6 flex flex-col space-y-2">
@@ -333,6 +381,9 @@
             <canvas id="main-canvas" width="1440" height="810"></canvas>
         </main>
     </div>
+    
+    <!-- ★追加: Notification Element -->
+    <div id="notification" class="fixed bottom-4 right-4 px-4 py-2 rounded-lg shadow-lg text-white transition-opacity duration-300 opacity-0"></div>
 
 <script>
 // =================================================================================
@@ -348,6 +399,7 @@ class SimpleTableApp {
         this.canvasManager = new CanvasManager(this, this.canvasEl, this.ctx);
         this.projectManager = new ProjectManager(this);
         this.exportManager = new ExportManager(this);
+        this.historyManager = new HistoryManager(this); // ★追加
 
         this.state = {
             editingMode: 'none', // 'none', 'title', 'imageText'
@@ -363,7 +415,13 @@ class SimpleTableApp {
         this.canvasManager.init();
         this.projectManager.init();
         this.exportManager.init();
+        this.historyManager.init(); // ★追加
+        
+        this.canvasManager.resizeCanvas();
+        window.addEventListener('resize', () => this.canvasManager.resizeCanvas());
+
         this.drawLoop();
+        this.historyManager.saveState(); // ★追加: 初期状態を保存
     }
     
     drawLoop() {
@@ -394,6 +452,7 @@ class SimpleTableApp {
         this.state.editingMode = 'none';
         this.ui.hideAllEditors();
         this.canvasManager.deselectAll();
+        this.historyManager.saveState(); // ★修正
         this.update();
     }
 }
@@ -413,7 +472,7 @@ class CanvasManager {
         this.draggingObject = null;
         this.resizingObject = null;
         this.draggingTextObject = null;
-        this.backgroundImage = null; // ★追加
+        this.backgroundImage = null;
     }
 
     init() {
@@ -436,11 +495,18 @@ class CanvasManager {
         this.addEventListeners();
     }
     
+    resizeCanvas() {
+        const container = document.getElementById('canvas-container');
+        this.canvas.width = container.clientWidth;
+        this.canvas.height = container.clientHeight;
+        this.exportFrame.width = this.canvas.width;
+        this.exportFrame.height = this.canvas.height;
+        this.app.update();
+    }
+    
     draw() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         
-        // ★修正: 描画順序を変更
-        // 1. 背景画像
         if (this.backgroundImage && this.backgroundImage.image) {
             const bg = this.backgroundImage;
             const settings = this.app.settings.config.background;
@@ -452,12 +518,10 @@ class CanvasManager {
             this.ctx.restore();
         }
 
-        // 2. グリッド
-        if (this.app.settings.config.gridVisible) {
+        if (this.app.settings.config.gridSize > 0) {
             this.drawGrid();
         }
 
-        // 3. オブジェクト
         [...this.objects].sort((a, b) => a.zIndex - b.zIndex).forEach(obj => {
             if (obj.type === 'Title' && !this.app.settings.config.titleVisible) {
                 return;
@@ -473,6 +537,7 @@ class CanvasManager {
 
     drawGrid() {
         const gridSize = this.app.settings.config.gridSize;
+        if (gridSize === 0) return;
         this.ctx.beginPath();
         this.ctx.strokeStyle = '#e0e0e0';
         this.ctx.lineWidth = 1;
@@ -487,40 +552,89 @@ class CanvasManager {
         this.ctx.stroke();
     }
     
-    addImage(file, dropX, dropY) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const img = new Image();
-            img.onload = () => {
+    addMultipleImages(files, startX, startY) {
+        const imageLoadPromises = files.map(file => {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => resolve(img);
+                    img.onerror = reject;
+                    img.src = e.target.result;
+                };
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        });
+
+        Promise.all(imageLoadPromises).then(loadedImages => {
+            let currentX = startX;
+            let currentY = startY;
+            let rowMaxHeight = 0;
+            const gap = 10;
+
+            loadedImages.forEach(img => {
+                const tempImageObj = new ImageObject({
+                    app: this.app,
+                    image: img,
+                    x: 0, y: 0
+                });
+                
+                if (currentX + tempImageObj.width > this.canvas.width) {
+                    currentX = startX;
+                    currentY += rowMaxHeight + gap;
+                    rowMaxHeight = 0;
+                }
+
                 const newImage = new ImageObject({
                     app: this.app,
                     image: img,
-                    x: dropX,
-                    y: dropY
+                    x: currentX,
+                    y: currentY
                 });
+
                 this.objects.push(newImage);
-                this.selectObject(newImage);
-                this.app.update();
-            };
-            img.src = e.target.result;
-        };
-        reader.readAsDataURL(file);
+                
+                currentX += newImage.width + gap;
+                if (newImage.height > rowMaxHeight) {
+                    rowMaxHeight = newImage.height;
+                }
+            });
+
+            if (loadedImages.length > 0) {
+                this.selectObject(this.objects[this.objects.length - 1]);
+            }
+
+            this.app.update();
+            this.app.historyManager.saveState();
+        }).catch(error => {
+            this.app.ui.showNotification('画像の読み込みに失敗しました', 'error');
+        });
     }
 
-    // ★追加: 背景画像を設定するメソッド
     setBackgroundImage(file) {
         const reader = new FileReader();
         reader.onload = (e) => {
             const img = new Image();
             img.onload = () => {
                 this.backgroundImage = { image: img, src: e.target.result };
+                this.app.ui.updateBackgroundControlVisibility();
                 this.app.update();
+                this.app.historyManager.saveState();
             };
+            img.onerror = () => this.app.ui.showNotification('背景画像の読み込みに失敗しました', 'error');
             img.src = e.target.result;
         };
+        reader.onerror = () => this.app.ui.showNotification('ファイルの読み込みに失敗しました', 'error');
         reader.readAsDataURL(file);
     }
 
+    removeBackgroundImage() {
+        this.backgroundImage = null;
+        this.app.ui.updateBackgroundControlVisibility();
+        this.app.update();
+        this.app.historyManager.saveState();
+    }
 
     addEventListeners() {
         this.canvas.addEventListener('dragover', (e) => e.preventDefault());
@@ -528,10 +642,10 @@ class CanvasManager {
             e.preventDefault();
             if (this.app.state.editingMode !== 'none') return;
             if (e.dataTransfer.files.length > 0) {
-                const file = e.dataTransfer.files[0];
-                if (file.type.startsWith('image/')) {
-                    const pos = this.getMousePos(e);
-                    this.addImage(file, pos.x, pos.y);
+                const pos = this.getMousePos(e);
+                const files = Array.from(e.dataTransfer.files).filter(file => file.type.startsWith('image/'));
+                if (files.length > 0) {
+                    this.addMultipleImages(files, pos.x, pos.y);
                 }
             }
         });
@@ -575,7 +689,14 @@ class CanvasManager {
             }
         }
 
-        if (this.app.state.editingMode !== 'none') return;
+        if (this.app.state.editingMode === 'title') {
+            const titleObject = this.app.canvasManager.title;
+            if (titleObject.isHit(pos.x, pos.y)) {
+                return; 
+            } else {
+                this.app.leaveEditMode();
+            }
+        }
 
         if (this.selectedObject) {
             const handle = this.selectedObject.getHandleAt(pos.x, pos.y);
@@ -592,10 +713,12 @@ class CanvasManager {
         }
         
         let objectFound = false;
-        for (let i = this.objects.length - 1; i >= 0; i--) {
-            const obj = this.objects[i];
+        const sortedObjects = [...this.objects].sort((a, b) => b.zIndex - a.zIndex);
+        for (const obj of sortedObjects) {
             if (obj.isHit(pos.x, pos.y)) {
-                this.selectObject(obj);
+                if (obj !== this.selectedObject) {
+                    this.selectObject(obj);
+                }
                 if (obj.isDraggable) {
                     this.draggingObject = obj;
                 }
@@ -655,6 +778,7 @@ class CanvasManager {
     }
 
     handleMouseUp(e) {
+        const wasDraggingOrResizing = this.draggingObject || this.resizingObject;
         if (this.draggingTextObject) {
             this.draggingTextObject = null;
             this.app.update();
@@ -665,6 +789,10 @@ class CanvasManager {
         }
         this.resizingObject = null;
         this.app.update();
+
+        if (wasDraggingOrResizing) {
+            this.app.historyManager.saveState();
+        }
     }
 
     handleDoubleClick(e) {
@@ -700,41 +828,51 @@ class CanvasManager {
     deleteObject(obj) {
         this.objects = this.objects.filter(o => o !== obj);
         this.deselectAll();
+        this.app.historyManager.saveState();
     }
     
-    loadObjects(projectData) {
-        this.objects = [];
-        projectData.objects.forEach(objData => {
-            let newObj;
-            switch(objData.type) {
-                case 'Title':
-                    newObj = Title.fromJSON(objData, this.app);
-                    this.title = newObj;
-                    break;
-                case 'ImageObject':
-                    newObj = ImageObject.fromJSON(objData, this.app);
-                    break;
-                case 'ExportFrame':
-                    newObj = ExportFrame.fromJSON(objData, this.app);
-                    this.exportFrame = newObj;
-                    break;
+    async restoreState(state) {
+        this.selectedObject = null;
+        this.backgroundImage = null;
+        if (state.backgroundImageSrc) {
+            try {
+                const img = await new Promise((resolve, reject) => {
+                    const image = new Image();
+                    image.onload = () => resolve(image);
+                    image.onerror = reject;
+                    image.src = state.backgroundImageSrc;
+                });
+                this.backgroundImage = { image: img, src: state.backgroundImageSrc };
+            } catch (error) {
+                this.app.ui.showNotification('背景画像の復元に失敗しました', 'error');
             }
-            if (newObj) this.objects.push(newObj);
-        });
-
-        // ★追加: 保存データから背景画像を読み込む
-        if (projectData.backgroundImageSrc) {
-            const img = new Image();
-            img.onload = () => {
-                this.backgroundImage = { image: img, src: projectData.backgroundImageSrc };
-                this.app.update();
-            };
-            img.src = projectData.backgroundImageSrc;
-        } else {
-            this.backgroundImage = null;
         }
 
-        this.app.update();
+        const objectPromises = state.objects.map(objData => {
+            switch(objData.type) {
+                case 'Title':
+                    return Promise.resolve(Title.fromJSON(objData, this.app));
+                case 'ImageObject':
+                    return ImageObject.fromJSON(objData, this.app);
+                case 'ExportFrame':
+                    return Promise.resolve(ExportFrame.fromJSON(objData, this.app));
+                default:
+                    return Promise.resolve(null);
+            }
+        });
+
+        try {
+            const loadedObjects = await Promise.all(objectPromises);
+            this.objects = loadedObjects.filter(Boolean);
+
+            this.title = this.objects.find(o => o.type === 'Title');
+            this.exportFrame = this.objects.find(o => o.type === 'ExportFrame');
+
+            this.app.update();
+            this.app.ui.updateBackgroundControlVisibility();
+        } catch (error) {
+            this.app.ui.showNotification('オブジェクトの復元に失敗しました', 'error');
+        }
     }
 }
 
@@ -805,7 +943,9 @@ class ImageObject extends DraggableObject {
         this.text.x = this.width / 2;
         this.text.y = this.height / 2;
 
-        if (this.image) this.fitToMaxSize();
+        if (this.image && !config.isRestoring) {
+            this.fitToMaxSize();
+        }
         this.snapToGrid();
     }
 
@@ -926,10 +1066,15 @@ class ImageObject extends DraggableObject {
     }
 
     static fromJSON(data, app) {
-        const img = new Image();
-        img.src = data.imageSrc;
-        const config = { ...data, app, image: img };
-        return new ImageObject(config);
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.onload = () => {
+                const config = { ...data, app, image: img, isRestoring: true };
+                resolve(new ImageObject(config));
+            };
+            img.onerror = reject;
+            img.src = data.imageSrc;
+        });
     }
 }
 
@@ -944,6 +1089,7 @@ class TextObject extends DraggableObject {
         this.fontFamily = config.fontFamily || 'sans-serif';
         this.fontSize = config.fontSize || 16;
         this.fontWeight = config.fontWeight || 'normal';
+        this.fontStyle = config.fontStyle || 'normal'; // ★追加
         this.fillStyle = config.fillStyle || '#000000';
         this.textAlign = config.textAlign || 'center';
         this.shadow = config.shadow || { enabled: false, color: '#000000' };
@@ -954,7 +1100,7 @@ class TextObject extends DraggableObject {
     draw(ctx) {
         if (!this.text) return;
         ctx.save();
-        ctx.font = `${this.fontWeight} ${this.fontSize}px ${this.fontFamily}`;
+        ctx.font = `${this.fontStyle} ${this.fontWeight} ${this.fontSize}px ${this.fontFamily}`; // ★修正
         ctx.textAlign = this.textAlign;
         ctx.textBaseline = 'middle';
         
@@ -979,7 +1125,7 @@ class TextObject extends DraggableObject {
     getMetrics() {
         const ctx = this.app.ctx;
         ctx.save();
-        ctx.font = `${this.fontWeight} ${this.fontSize}px ${this.fontFamily}`;
+        ctx.font = `${this.fontStyle} ${this.fontWeight} ${this.fontSize}px ${this.fontFamily}`; // ★修正
         const metrics = ctx.measureText(this.text);
         ctx.restore();
         return metrics;
@@ -1011,6 +1157,7 @@ class TextObject extends DraggableObject {
         data.fontFamily = this.fontFamily;
         data.fontSize = this.fontSize;
         data.fontWeight = this.fontWeight;
+        data.fontStyle = this.fontStyle; // ★追加
         data.fillStyle = this.fillStyle;
         data.textAlign = this.textAlign;
         data.shadow = this.shadow;
@@ -1135,7 +1282,7 @@ class ExportFrame extends DraggableObject {
 class SettingsManager {
     constructor(app) {
         this.app = app;
-        this.storageKey = 'simpleTableCreatorSettings_v5'; // ★バージョン更新
+        this.storageKey = 'simpleTableCreatorSettings_v5';
         this.config = this.loadSettings();
     }
 
@@ -1149,16 +1296,14 @@ class SettingsManager {
         return {
             language: 'ja',
             titleVisible: true,
-            gridVisible: true, // ★追加
             gridSize: 5,
             maxImageSize: 240,
             imageBorder: {
-                enabled: true,
                 width: 2,
                 color: '#000000',
                 radius: 8
             },
-            background: { // ★追加
+            background: {
                 opacity: 1,
                 scale: 1,
                 x: 0,
@@ -1172,6 +1317,7 @@ class SettingsManager {
             fontFamily: "'Noto Sans JP', sans-serif",
             fontSize: 16,
             fontWeight: 'normal',
+            fontStyle: 'normal',
             fillStyle: '#000000',
             textAlign: 'center',
             shadow: { enabled: false, color: '#000000' },
@@ -1181,7 +1327,9 @@ class SettingsManager {
 
     loadSettings() {
         const saved = localStorage.getItem(this.storageKey);
-        return saved ? { ...this.getDefaults(), ...JSON.parse(saved) } : this.getDefaults();
+        const loadedConfig = saved ? { ...this.getDefaults(), ...JSON.parse(saved) } : this.getDefaults();
+        loadedConfig.titleVisible = true;
+        return loadedConfig;
     }
 
     saveSettings() {
@@ -1196,29 +1344,29 @@ class SettingsManager {
     bindUI() {
         const settings = [
             { id: 'title-visible-toggle', key: 'titleVisible', type: 'checkbox' },
-            { id: 'grid-visible-toggle', key: 'gridVisible', type: 'checkbox' }, // ★追加
             { id: 'grid-size', key: 'gridSize', type: 'range' },
             { id: 'max-img-size', key: 'maxImageSize', type: 'range' },
-            { id: 'img-border-toggle', key: 'imageBorder.enabled', type: 'checkbox' },
             { id: 'img-border-width', key: 'imageBorder.width', type: 'range' },
             { id: 'img-border-color', key: 'imageBorder.color', type: 'color' },
             { id: 'img-border-radius', key: 'imageBorder.radius', type: 'range' },
-            { id: 'bg-opacity', key: 'background.opacity', type: 'range', isFloat: true }, // ★追加
-            { id: 'bg-scale', key: 'background.scale', type: 'range', isFloat: true }, // ★追加
-            { id: 'bg-pos-x', key: 'background.x', type: 'range' }, // ★追加
-            { id: 'bg-pos-y', key: 'background.y', type: 'range' }, // ★追加
+            { id: 'bg-opacity', key: 'background.opacity', type: 'range', isFloat: true },
+            { id: 'bg-scale', key: 'background.scale', type: 'range', isFloat: true },
+            { id: 'bg-pos-x', key: 'background.x', type: 'range' },
+            { id: 'bg-pos-y', key: 'background.y', type: 'range' },
         ];
 
         settings.forEach(setting => {
             const el = document.getElementById(setting.id);
-            el.addEventListener('input', (e) => {
+            if (!el) return;
+            const eventType = (el.type === 'range' || el.type === 'color') ? 'change' : 'input';
+            el.addEventListener(eventType, (e) => {
                 let value;
                 switch(setting.type) {
                     case 'checkbox': value = e.target.checked; break;
+                    case 'color': value = e.target.value; break;
                     default: value = setting.isFloat ? parseFloat(e.target.value) : parseInt(e.target.value);
                 }
                 
-                // ★修正: 5px刻みの処理
                 if (setting.key === 'gridSize' || setting.key === 'maxImageSize') {
                     value = Math.round(value / 5) * 5;
                     e.target.value = value;
@@ -1228,27 +1376,38 @@ class SettingsManager {
                 this.updateUI();
                 this.saveSettings();
                 this.applySettings();
+                this.app.historyManager.saveState();
             });
         });
 
-        document.getElementById('reset-settings-btn').addEventListener('click', () => {
-            const msg = this.app.ui.translations[this.config.language]['confirm-reset'];
-            if (confirm(msg)) {
-                this.config = this.getDefaults();
+        document.querySelectorAll('.reset-settings-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const resetType = e.currentTarget.dataset.resetType;
+                const defaults = this.getDefaults();
+                
+                if (resetType === 'field') {
+                    this.config.titleVisible = defaults.titleVisible;
+                    this.config.gridSize = defaults.gridSize;
+                    this.config.background = { ...defaults.background };
+                    this.app.canvasManager.removeBackgroundImage();
+                } else if (resetType === 'image') {
+                    this.config.maxImageSize = defaults.maxImageSize;
+                    this.config.imageBorder = { ...defaults.imageBorder };
+                }
+
                 this.updateUI();
                 this.saveSettings();
                 this.applySettings();
-            }
+                this.app.historyManager.saveState();
+            });
         });
     }
 
     updateUI() {
         const ids = {
             'title-visible-toggle': 'titleVisible',
-            'grid-visible-toggle': 'gridVisible',
             'grid-size': 'gridSize',
             'max-img-size': 'maxImageSize',
-            'img-border-toggle': 'imageBorder.enabled',
             'img-border-width': 'imageBorder.width',
             'img-border-color': 'imageBorder.color',
             'img-border-radius': 'imageBorder.radius',
@@ -1259,6 +1418,7 @@ class SettingsManager {
         };
         for (const id in ids) {
             const el = document.getElementById(id);
+            if (!el) continue;
             const value = this.getConfigValue(ids[id]);
             if (el.type === 'checkbox') el.checked = value;
             else el.value = value;
@@ -1267,8 +1427,8 @@ class SettingsManager {
             if (valueEl) valueEl.textContent = value;
         }
         
+        this.config.imageBorder.enabled = this.config.imageBorder.width > 0;
         document.getElementById('img-border-settings').style.display = this.config.imageBorder.enabled ? 'block' : 'none';
-        document.getElementById('grid-settings').style.display = this.config.gridVisible ? 'block' : 'none';
     }
 
     setConfigValue(key, value) {
@@ -1307,37 +1467,43 @@ class UIManager {
         this.translations = {
             ja: {
                 'app-title': '画像放り込みシンプル表作成', 'save': '保存', 'load': '呼び出し', 'export': '画像出力', 'help': '操作方法',
-                'settings-title': '設定', 'language': '言語', 'show-title': 'タイトルを表示', 'grid-width': 'グリッド幅', 'max-img-size': '画像最大サイズ',
-                'img-frame-settings': '画像フレーム設定', 'enable-border': '枠線をつける', 'border-width': '枠線の幅', 'border-color': '枠線の色', 'corner-radius': '角の丸み',
-                'reset-settings': '設定をデフォルトに戻す', 'title-edit-title': 'タイトル編集', 'img-text-edit-title': '画像内テキスト編集',
-                'text': 'テキスト', 'font-size': 'サイズ', 'font-family': 'フォント', 'text-color': '文字色', 'bold': '太字', 'shadow': '影',
+                'settings-title': '設定', 'language': '言語', 'show-title': 'タイトルを表示', 'grid-width': 'グリッド幅', 'max-img-size': '追加する画像サイズ（リサイズ後）',
+                'img-settings': '画像設定', 'enable-border': '枠線をつける', 'border-width': '枠線の幅', 'border-color': '枠線の色', 'corner-radius': '角の丸み',
+                'reset-settings': '設定をリセット', 'title-edit-title': 'タイトル編集', 'img-text-edit-title': '画像内テキスト編集',
+                'text': 'テキスト', 'font-size': 'サイズ', 'font-family': 'フォント', 'text-color': '文字色', 'bold': '太字', 'italic': '斜体', 'shadow': '影',
                 'enable-shadow': '影をつける', 'stroke': '縁取り', 'enable-stroke': '縁取りをつける', 'reset-text-pos': 'テキスト位置を中央に戻す',
-                'help-title': '操作方法', 'help-basic-ops': '基本操作', 'help-add-img': '<strong>画像追加:</strong> PCから画像をキャンバスにドラッグ＆ドロップします。',
-                'help-move': '<strong>移動:</strong> オブジェクトをドラッグして移動します。', 'help-select': '<strong>選択:</strong> オブジェクトをクリックして選択します。',
-                'help-z-index': '<strong>重ね順:</strong> 選択したオブジェクトが最前面に移動します。', 'help-obj-edit': 'オブジェクト編集',
-                'help-resize': '<strong>リサイズ:</strong> 選択したオブジェクトの右下ハンドルをドラッグします。', 'help-delete': '<strong>削除:</strong> 選択したオブジェクトの右上ボタンをクリックします。',
-                'help-text-edit': '<strong>テキスト編集:</strong> タイトルや画像をダブルクリックします。', 'help-save-export': '保存と出力',
-                'help-save-desc': '<strong>保存:</strong> 現在の状態をファイル(.json)に保存します。', 'help-load-desc': '<strong>呼び出し:</strong> 保存したファイルを読み込みます。',
-                'help-export-desc': '<strong>画像出力:</strong> 出力枠内の内容を画像として保存します。', 'export-title': '画像出力', 'export-width': '出力幅 (px)',
-                'export-format': 'フォーマット', 'cancel': 'キャンセル', 'export-confirm': '出力', 'export-area-label': '出力範囲:', 'confirm-reset': '全ての設定を初期状態に戻しますか？',
-                'show-grid': 'グリッドを表示', 'bg-settings': '背景設定', 'bg-drop-text': 'ここに背景画像をドロップ', 'bg-opacity': '透過度', 'bg-scale': '拡大率', 'bg-pos-x': 'X位置', 'bg-pos-y': 'Y位置'
+                'help-title': '操作方法', 'help-title-settings': '設定変更', 'help-desc-settings': '左の設定パネルから変更できます。<br>変更した設定はアプリを閉じても維持されます（ただし「保存」ボタンでDL推奨です）。<br>画像設定や画像内テキストを変更した場合、次に追加された画像から設定が適用されます。',
+                'help-title-add-img': '画像追加', 'help-desc-add-img': 'PC上の画像ファイルを右側のフィールドにドラッグ＆ドロップします。画像は分かりやすいフォルダにまとめておきましょう。画像は右下のハンドルをドラッグしてリサイズできます。',
+                'help-title-reorder': '並び替え', 'help-desc-reorder': 'フィールド上の画像とタイトルはドラッグ＆ドロップで順序を入れ替えられます。',
+                'help-title-edit-title': 'タイトルの編集', 'help-desc-edit-title': 'タイトルテキストをダブルクリックすると、編集パネルが出てきます。',
+                'help-title-edit-img-text': '画像内のテキスト編集', 'help-desc-edit-img-text': '画像をダブルクリックすると、左パネルに調整メニューが表示されます。調整後、「設定に戻る」で設定パネルに戻ります。',
+                'help-title-delete-img': '画像削除', 'help-desc-delete-img': '画像にマウスを乗せると右上に表示される×ボタンで削除します。',
+                'help-title-save-load': '保存と呼び出し', 'help-desc-save-load': '「保存」ボタンで現在の状態をファイル(.json)に保存（ダウンロード）します。「呼び出し」ボタンでファイルを読み込んで復元できます。',
+                'help-title-export': '画像出力', 'help-desc-export': '上部の「画像出力」ボタンで、現在のフィールドを一枚の画像として保存（ダウンロード）できます。',
+                'export-title': '画像出力', 'export-width': '出力幅 (px)',
+                'export-format': 'フォーマット', 'cancel': 'キャンセル', 'export-confirm': '出力', 'export-area-label': '出力範囲:', 'confirm-reset': 'このセクションの設定を初期状態に戻しますか？',
+                'show-grid': 'グリッドを表示', 'field-settings': 'フィールド設定', 'bg-settings': '背景設定', 'bg-drop-text': 'ここに背景画像をドロップ', 'bg-opacity': '画像透過度', 'bg-scale': '拡大率', 'bg-pos-x': '位置（横）', 'bg-pos-y': '位置（縦）',
+                'export-include-grid': 'グリッドを出力に含める', 'bg-remove': '背景を削除', 'return-to-settings': '設定に戻る', 'apply-to-all': '全ての画像に変更を適用する', 'text-placeholder': 'テキスト'
             },
             en: {
                 'app-title': 'Simple Image Table Creator', 'save': 'Save', 'load': 'Load', 'export': 'Export Image', 'help': 'Help',
-                'settings-title': 'Settings', 'language': 'Language', 'show-title': 'Show Title', 'grid-width': 'Grid Width', 'max-img-size': 'Max Image Size',
-                'img-frame-settings': 'Image Frame Settings', 'enable-border': 'Enable Border', 'border-width': 'Border Width', 'border-color': 'Border Color', 'corner-radius': 'Corner Radius',
-                'reset-settings': 'Reset to Default', 'title-edit-title': 'Edit Title', 'img-text-edit-title': 'Edit Image Text',
-                'text': 'Text', 'font-size': 'Size', 'font-family': 'Font', 'text-color': 'Color', 'bold': 'Bold', 'shadow': 'Shadow',
+                'settings-title': 'Settings', 'language': 'Language', 'show-title': 'Show Title', 'grid-width': 'Grid Width', 'max-img-size': 'Added Image Size (Resized)',
+                'img-settings': 'Image Settings', 'enable-border': 'Enable Border', 'border-width': 'Border Width', 'border-color': 'Border Color', 'corner-radius': 'Corner Radius',
+                'reset-settings': 'Reset Settings', 'title-edit-title': 'Edit Title', 'img-text-edit-title': 'Edit Image Text',
+                'text': 'Text', 'font-size': 'Size', 'font-family': 'Font', 'text-color': 'Color', 'bold': 'Bold', 'italic': 'Italic', 'shadow': 'Shadow',
                 'enable-shadow': 'Enable Shadow', 'stroke': 'Stroke', 'enable-stroke': 'Enable Stroke', 'reset-text-pos': 'Reset Text Position',
-                'help-title': 'How to Use', 'help-basic-ops': 'Basic Operations', 'help-add-img': '<strong>Add Image:</strong> Drag & drop an image from your PC onto the canvas.',
-                'help-move': '<strong>Move:</strong> Drag an object to move it.', 'help-select': '<strong>Select:</strong> Click an object to select it.',
-                'help-z-index': '<strong>Layer Order:</strong> Selected objects move to the front.', 'help-obj-edit': 'Object Editing',
-                'help-resize': '<strong>Resize:</strong> Drag the bottom-right handle of a selected object.', 'help-delete': '<strong>Delete:</strong> Click the top-right button of a selected object.',
-                'help-text-edit': '<strong>Edit Text:</strong> Double-click the title or an image.', 'help-save-export': 'Save & Export',
-                'help-save-desc': '<strong>Save:</strong> Save the current project to a .json file.', 'help-load-desc': '<strong>Load:</strong> Load a saved project file.',
-                'help-export-desc': '<strong>Export Image:</strong> Export the content within the export frame as an image.', 'export-title': 'Export Image', 'export-width': 'Export Width (px)',
-                'export-format': 'Format', 'cancel': 'Cancel', 'export-confirm': 'Export', 'export-area-label': 'Export Area:', 'confirm-reset': 'Reset all settings to default?',
-                'show-grid': 'Show Grid', 'bg-settings': 'Background Settings', 'bg-drop-text': 'Drop background image here', 'bg-opacity': 'Opacity', 'bg-scale': 'Scale', 'bg-pos-x': 'X Position', 'bg-pos-y': 'Y Position'
+                'help-title': 'How to Use', 'help-title-settings': 'Changing Settings', 'help-desc-settings': 'You can change settings from the left panel.<br>Changed settings are maintained even if you close the app (however, downloading with the "Save" button is recommended).<br>If you change image settings or image text, the settings will be applied to newly added images.',
+                'help-title-add-img': 'Adding Images', 'help-desc-add-img': 'Drag and drop image files from your PC onto the right field. It\'s a good idea to keep images in an easy-to-find folder. Images can be resized by dragging the bottom-right handle.',
+                'help-title-reorder': 'Reordering', 'help-desc-reorder': 'Images and titles on the field can be reordered by drag and drop.',
+                'help-title-edit-title': 'Editing the Title', 'help-desc-edit-title': 'Double-click the title text to open the editing panel.',
+                'help-title-edit-img-text': 'Editing Text in Images', 'help-desc-edit-img-text': 'Double-click an image to display the adjustment menu in the left panel. After adjusting, return to the settings panel with "Return to Settings".',
+                'help-title-delete-img': 'Deleting Images', 'help-desc-delete-img': 'Delete an image by clicking the "x" button that appears in the upper right corner when you mouse over it.',
+                'help-title-save-load': 'Saving and Loading', 'help-desc-save-load': 'Save the current state to a file (.json) with the "Save" button (download). You can restore it by loading the file with the "Load" button.',
+                'help-title-export': 'Exporting Images', 'help-desc-export': 'You can save (download) the current field as a single image with the "Export Image" button at the top.',
+                'export-title': 'Export Image', 'export-width': 'Export Width (px)',
+                'export-format': 'Format', 'cancel': 'Cancel', 'export-confirm': 'Export', 'export-area-label': 'Export Area:',
+                'show-grid': 'Show Grid', 'field-settings': 'Field Settings', 'bg-settings': 'Background Settings', 'bg-drop-text': 'Drop background image here', 'bg-opacity': 'Image Opacity', 'bg-scale': 'Scale', 'bg-pos-x': 'Position (Horizontal)', 'bg-pos-y': 'Position (Vertical)',
+                'export-include-grid': 'Include grid in export', 'bg-remove': 'Remove Background', 'return-to-settings': 'Return to Settings', 'apply-to-all': 'Apply to All Images', 'text-placeholder': 'Text'
             }
         };
     }
@@ -1366,7 +1532,6 @@ class UIManager {
             }
         });
 
-        // ★追加: 背景ドロップエリアのイベントリスナー
         const dropArea = document.getElementById('background-drop-area');
         dropArea.addEventListener('dragover', (e) => {
             e.preventDefault();
@@ -1384,6 +1549,25 @@ class UIManager {
                     this.app.canvasManager.setBackgroundImage(file);
                 }
             }
+        });
+
+        document.querySelectorAll('.accordion-header').forEach(header => {
+            header.addEventListener('click', () => {
+                const content = header.nextElementSibling;
+                header.classList.toggle('open');
+                content.classList.toggle('hidden');
+            });
+        });
+
+        document.getElementById('remove-bg-btn').addEventListener('click', () => {
+            this.app.canvasManager.removeBackgroundImage();
+        });
+
+        document.getElementById('apply-image-settings-all').addEventListener('click', () => {
+            this.applyImageSettingsToAll();
+        });
+        document.getElementById('apply-text-style-all').addEventListener('click', () => {
+            this.applyTextStyleToAll();
         });
     }
 
@@ -1423,6 +1607,33 @@ class UIManager {
         }
     }
 
+    updateBackgroundControlVisibility() {
+        const controls = document.getElementById('background-controls');
+        if (this.app.canvasManager.backgroundImage) {
+            controls.classList.remove('hidden');
+        } else {
+            controls.classList.add('hidden');
+        }
+    }
+
+    showNotification(message, type = 'success') {
+        const notification = document.getElementById('notification');
+        notification.textContent = message;
+        notification.classList.remove('opacity-0', 'bg-green-500', 'bg-red-500');
+        
+        if (type === 'success') {
+            notification.classList.add('bg-green-500');
+        } else {
+            notification.classList.add('bg-red-500');
+        }
+
+        notification.classList.remove('opacity-0');
+
+        setTimeout(() => {
+            notification.classList.add('opacity-0');
+        }, 3000);
+    }
+
     hideAllEditors() {
         this.showPanel('main');
     }
@@ -1440,11 +1651,20 @@ class UIManager {
     }
 
     populateEditor(prefix, textObject) {
-        document.getElementById(`${prefix}-content`).value = textObject.text;
+        const contentEl = document.getElementById(`${prefix}-content`);
+        contentEl.value = textObject.text;
+
+        if (prefix === 'text') {
+            const lang = this.app.settings.config.language;
+            const placeholderText = this.translations[lang]['text-placeholder'] || 'テキスト';
+            contentEl.placeholder = placeholderText;
+        }
+
         document.getElementById(`${prefix}-font-size`).value = textObject.fontSize;
         document.getElementById(`${prefix}-font-family`).value = textObject.fontFamily;
         document.getElementById(`${prefix}-color`).value = textObject.fillStyle;
         document.getElementById(`${prefix}-bold`).checked = textObject.fontWeight === 'bold';
+        document.getElementById(`${prefix}-italic`).checked = textObject.fontStyle === 'italic';
         
         document.getElementById(`${prefix}-shadow-toggle`).checked = textObject.shadow.enabled;
         document.getElementById(`${prefix}-shadow-color`).value = textObject.shadow.color;
@@ -1463,6 +1683,7 @@ class UIManager {
             'font-family': (obj, val) => onUpdate(obj, 'fontFamily', val),
             'color': (obj, val) => onUpdate(obj, 'fillStyle', val),
             'bold': (obj, val) => onUpdate(obj, 'fontWeight', val ? 'bold' : 'normal'),
+            'italic': (obj, val) => onUpdate(obj, 'fontStyle', val ? 'italic' : 'normal'),
             'shadow-toggle': (obj, val) => onUpdate(obj.shadow, 'enabled', val),
             'shadow-color': (obj, val) => onUpdate(obj.shadow, 'color', val),
             'stroke-toggle': (obj, val) => onUpdate(obj.stroke, 'enabled', val),
@@ -1483,6 +1704,12 @@ class UIManager {
                 bindings[idSuffix](obj, value);
                 this.app.update();
             });
+            
+            if (el.type === 'range' || el.type === 'color') {
+                 el.addEventListener('change', () => this.app.historyManager.saveState());
+            } else {
+                 el.addEventListener('input', () => this.app.historyManager.saveState());
+            }
         }
         
         document.getElementById(`${prefix}-shadow-toggle`).addEventListener('change', (e) => {
@@ -1501,10 +1728,46 @@ class UIManager {
                         obj.x = parent.width / 2;
                         obj.y = parent.height / 2;
                         this.app.update();
+                        this.app.historyManager.saveState();
                     }
                 }
             });
         }
+    }
+
+    applyImageSettingsToAll() {
+        const imageSettings = this.app.settings.config.imageBorder;
+        this.app.canvasManager.objects.forEach(obj => {
+            if (obj.type === 'ImageObject') {
+                obj.border = { ...imageSettings };
+                obj.fitToMaxSize();
+            }
+        });
+        this.app.update();
+        this.app.historyManager.saveState();
+    }
+
+    applyTextStyleToAll() {
+        const currentStyleObject = this.editorBindings.text.currentObject;
+        if (!currentStyleObject) return;
+
+        const styleToApply = currentStyleObject.toJSON();
+        delete styleToApply.x;
+        delete styleToApply.y;
+        delete styleToApply.width;
+        delete styleToApply.height;
+        delete styleToApply.zIndex;
+        delete styleToApply.type;
+        delete styleToApply.text;
+
+
+        this.app.canvasManager.objects.forEach(obj => {
+            if (obj.type === 'ImageObject' && obj.text) {
+                Object.assign(obj.text, styleToApply);
+            }
+        });
+        this.app.update();
+        this.app.historyManager.saveState();
     }
 }
 
@@ -1523,20 +1786,22 @@ class ProjectManager {
 
     save() {
         const projectData = {
-            version: 5, // ★バージョン更新
+            version: 5,
             settings: this.app.settings.config,
             objects: this.app.canvasManager.objects.map(obj => obj.toJSON()),
             lastImageTextStyle: this.app.state.lastImageTextStyle,
-            backgroundImageSrc: this.app.canvasManager.backgroundImage ? this.app.canvasManager.backgroundImage.src : null // ★追加
+            backgroundImageSrc: this.app.canvasManager.backgroundImage ? this.app.canvasManager.backgroundImage.src : null
         };
         
         const dataStr = JSON.stringify(projectData, null, 2);
         const blob = new Blob([dataStr], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
-        a.href = `project-v5.json`;
+        a.href = url;
+        a.download = 'project-v5.json';
         a.click();
         URL.revokeObjectURL(url);
+        this.app.ui.showNotification('プロジェクトを保存しました');
     }
 
     load(event) {
@@ -1548,12 +1813,11 @@ class ProjectManager {
             try {
                 const projectData = JSON.parse(e.target.result);
                 if (!projectData.version || projectData.version < 5) {
-                    alert("古いバージョンのプロジェクトファイルです。互換性がありません。");
+                    this.app.ui.showNotification('古いバージョンのファイルです', 'error');
                     return;
                 }
                 
                 this.app.settings.config = projectData.settings;
-                // ★修正: 呼び出し時にタイトルが消える問題を解決
                 this.app.settings.config.titleVisible = true;
 
                 this.app.settings.updateUI();
@@ -1566,11 +1830,15 @@ class ProjectManager {
                 this.app.canvasManager.loadObjects(projectData);
                 
                 this.app.settings.applySettings();
+                this.app.ui.showNotification('プロジェクトを読み込みました');
+                this.app.historyManager.clear();
+                this.app.historyManager.saveState();
             } catch (error) {
                 console.error("プロジェクトファイルの読み込みに失敗しました:", error);
-                alert("無効なプロジェクトファイルです。");
+                this.app.ui.showNotification('無効なプロジェクトファイルです', 'error');
             }
         };
+        reader.onerror = () => this.app.ui.showNotification('ファイルの読み込みに失敗しました', 'error');
         reader.readAsText(file);
         event.target.value = '';
     }
@@ -1592,7 +1860,8 @@ class ExportManager {
         const frame = this.app.canvasManager.exportFrame;
         const exportWidth = parseInt(document.getElementById('export-width').value);
         const format = document.getElementById('export-format').value;
-        
+        const includeGrid = document.getElementById('export-grid-toggle').checked;
+
         const scale = exportWidth / frame.width;
         const exportHeight = frame.height * scale;
 
@@ -1608,11 +1877,6 @@ class ExportManager {
         exportCtx.scale(scale, scale);
         exportCtx.translate(-frame.x, -frame.y);
 
-        exportCtx.beginPath();
-        exportCtx.rect(frame.x, frame.y, frame.width, frame.height);
-        exportCtx.clip();
-
-        // ★修正: 出力時にも背景画像を描画
         const canvasManager = this.app.canvasManager;
         if (canvasManager.backgroundImage && canvasManager.backgroundImage.image) {
             const bg = canvasManager.backgroundImage;
@@ -1624,6 +1888,26 @@ class ExportManager {
             exportCtx.drawImage(bg.image, settings.x, settings.y, w, h);
             exportCtx.restore();
         }
+
+        if (includeGrid) {
+            const gridSize = this.app.settings.config.gridSize;
+            exportCtx.beginPath();
+            exportCtx.strokeStyle = '#e0e0e0';
+            exportCtx.lineWidth = 1;
+            for (let x = 0; x < canvasManager.canvas.width; x += gridSize) {
+                exportCtx.moveTo(x, 0);
+                exportCtx.lineTo(x, canvasManager.canvas.height);
+            }
+            for (let y = 0; y < canvasManager.canvas.height; y += gridSize) {
+                exportCtx.moveTo(0, y);
+                exportCtx.lineTo(canvasManager.canvas.width, y);
+            }
+            exportCtx.stroke();
+        }
+
+        exportCtx.beginPath();
+        exportCtx.rect(frame.x, frame.y, frame.width, frame.height);
+        exportCtx.clip();
 
         const objectsToDraw = canvasManager.objects.filter(obj => {
             return obj !== frame &&
@@ -1649,6 +1933,95 @@ class ExportManager {
         this.app.ui.showPanel('main');
     }
 }
+
+// =================================================================================
+// ★追加: History Manager Class
+// =================================================================================
+class HistoryManager {
+    constructor(app) {
+        this.app = app;
+        this.history = [];
+        this.redoStack = [];
+        this.maxHistory = 30;
+        this.isUndoingOrRedoing = false;
+    }
+
+    init() {
+        window.addEventListener('keydown', (e) => {
+            if (e.ctrlKey || e.metaKey) {
+                if (e.key === 'z') {
+                    e.preventDefault();
+                    this.undo();
+                } else if (e.key === 'y' || (e.shiftKey && e.key === 'z')) {
+                    e.preventDefault();
+                    this.redo();
+                }
+            }
+        });
+    }
+
+    saveState() {
+        if (this.isUndoingOrRedoing) return;
+
+        this.redoStack = []; 
+
+        const canvasManager = this.app.canvasManager;
+        const state = {
+            objects: canvasManager.objects.map(obj => obj.toJSON()),
+            backgroundImageSrc: canvasManager.backgroundImage ? canvasManager.backgroundImage.src : null,
+            settings: JSON.parse(JSON.stringify(this.app.settings.config))
+        };
+
+        this.history.push(JSON.stringify(state));
+
+        if (this.history.length > this.maxHistory) {
+            this.history.shift();
+        }
+    }
+
+    async undo() {
+        if (this.history.length < 2) return;
+
+        this.isUndoingOrRedoing = true;
+        const currentState = this.history.pop();
+        this.redoStack.push(currentState);
+
+        const lastStateString = this.history[this.history.length - 1];
+        const state = JSON.parse(lastStateString);
+        
+        this.app.settings.config = state.settings;
+        await this.app.canvasManager.restoreState(state);
+        
+        this.app.settings.updateUI();
+        this.app.settings.applySettings();
+
+        this.isUndoingOrRedoing = false;
+    }
+
+    async redo() {
+        if (this.redoStack.length === 0) return;
+
+        this.isUndoingOrRedoing = true;
+        const nextStateString = this.redoStack.pop();
+        this.history.push(nextStateString);
+
+        const state = JSON.parse(nextStateString);
+
+        this.app.settings.config = state.settings;
+        await this.app.canvasManager.restoreState(state);
+
+        this.app.settings.updateUI();
+        this.app.settings.applySettings();
+
+        this.isUndoingOrRedoing = false;
+    }
+    
+    clear() {
+        this.history = [];
+        this.redoStack = [];
+    }
+}
+
 
 // =================================================================================
 // Application Entry Point
