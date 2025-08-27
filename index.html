@@ -55,7 +55,6 @@
         .accordion-header.open .accordion-arrow {
             transform: rotate(90deg);
         }
-        /* ★ 修正点: 開いているアコーディオンのスタイル */
         .accordion-header.open {
             border-bottom-left-radius: 0;
             border-bottom-right-radius: 0;
@@ -92,7 +91,6 @@
                             <span data-lang-key="field-settings">フィールド設定</span>
                             <svg class="accordion-arrow w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                         </button>
-                        <!-- ★ 修正点: アコーディオンの中身に枠線を追加 -->
                         <div id="accordion-field-content" class="hidden border border-t-0 border-gray-200 rounded-b-md p-4 space-y-4">
                             <div class="flex items-center justify-between">
                                 <label for="title-visible-toggle" class="text-sm font-medium text-gray-700" data-lang-key="show-title">タイトルを表示</label>
@@ -364,6 +362,10 @@
                             <option value="image/png">PNG</option>
                             <option value="image/jpeg">JPEG</option>
                         </select>
+                    </div>
+                    <div id="transparent-bg-container" class="flex items-center justify-between border-t pt-4">
+                        <label for="export-transparent-bg-toggle" class="text-sm font-medium text-gray-700" data-lang-key="export-transparent-bg"></label>
+                        <input type="checkbox" id="export-transparent-bg-toggle" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" checked>
                     </div>
                     <div class="flex items-center justify-between border-t pt-4">
                         <label for="export-grid-toggle" class="text-sm font-medium text-gray-700" data-lang-key="export-include-grid">グリッドを出力に含める</label>
@@ -1647,7 +1649,8 @@ class UIManager {
                 'apply-to-all': '全てのテキストに変更を適用',
                 'apply-image-settings-to-all': '全ての画像に変更を適用',
                 'text-placeholder': 'テキスト',
-                'auto-adjust': '画像を自動で整列'
+                'auto-adjust': '画像を自動で整列',
+                'export-transparent-bg': '背景を透過する (PNGのみ)'
             },
             en: {
                 'app-title': 'Simple Image Table Creator', 'save': 'Save', 'load': 'Load', 'export': 'Export Image', 'help': 'Help',
@@ -1671,7 +1674,8 @@ class UIManager {
                 'apply-to-all': 'Apply to All Texts',
                 'apply-image-settings-to-all': 'Apply to All Images',
                 'text-placeholder': 'Text',
-                'auto-adjust': 'Auto Align Images'
+                'auto-adjust': 'Auto Align Images',
+                'export-transparent-bg': 'Transparent Background (PNG only)'
             }
         };
     }
@@ -1741,6 +1745,19 @@ class UIManager {
         document.getElementById('apply-text-style-all').addEventListener('click', () => {
             this.applyTextStyleToAll();
         });
+        
+        // ★ 修正点: PNG選択時のみ透過オプションを表示するロジック
+        const exportFormatSelect = document.getElementById('export-format');
+        const transparentBgContainer = document.getElementById('transparent-bg-container');
+        const toggleTransparentBgOption = () => {
+            if (exportFormatSelect.value === 'image/png') {
+                transparentBgContainer.classList.remove('hidden');
+            } else {
+                transparentBgContainer.classList.add('hidden');
+            }
+        };
+        exportFormatSelect.addEventListener('change', toggleTransparentBgOption);
+        toggleTransparentBgOption(); // 初期表示
     }
 
     setLanguage(lang) {
@@ -2032,6 +2049,7 @@ class ExportManager {
         const exportWidth = parseInt(document.getElementById('export-width').value);
         const format = document.getElementById('export-format').value;
         const includeGrid = document.getElementById('export-grid-toggle').checked;
+        const transparentBg = document.getElementById('export-transparent-bg-toggle').checked;
 
         const scale = exportWidth / frame.width;
         const exportHeight = frame.height * scale;
@@ -2041,8 +2059,11 @@ class ExportManager {
         exportCanvas.height = exportHeight;
         const exportCtx = exportCanvas.getContext('2d');
         
-        exportCtx.fillStyle = '#ffffff';
-        exportCtx.fillRect(0, 0, exportWidth, exportHeight);
+        // ★ 修正点: PNG形式で透過が選択されている場合は背景を描画しない
+        if (format !== 'image/png' || !transparentBg) {
+            exportCtx.fillStyle = '#ffffff';
+            exportCtx.fillRect(0, 0, exportWidth, exportHeight);
+        }
 
         exportCtx.save();
         exportCtx.scale(scale, scale);
