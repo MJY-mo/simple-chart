@@ -22,6 +22,7 @@
         canvas {
             background-color: #ffffff;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transform-origin: top left;
         }
         /* Custom scrollbar for settings panel */
         .settings-panel::-webkit-scrollbar { width: 6px; }
@@ -86,22 +87,31 @@
             <div id="main-settings-panel">
                 <h2 class="text-lg font-bold mb-4 border-b pb-2" data-lang-key="settings-title">設定</h2>
                 <div class="space-y-4">
+                    <div class="pt-2">
+                        <button id="auto-adjust-btn" class="w-full px-4 py-2 rounded-lg shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 bg-indigo-500 hover:bg-indigo-600 text-white focus:ring-indigo-400" data-lang-key="auto-adjust"></button>
+                    </div>
                     <div>
                         <button id="accordion-field" class="w-full flex justify-between items-center text-left font-semibold accordion-header">
                             <span data-lang-key="field-settings">フィールド設定</span>
                             <svg class="accordion-arrow w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                         </button>
                         <div id="accordion-field-content" class="hidden border border-t-0 border-gray-200 rounded-b-md p-4 space-y-4">
+                            <!-- ★ 修正点: ズームスライダーをここに移動 -->
+                            <div>
+                                <label for="zoom-slider" class="block text-sm font-medium text-gray-700"><span data-lang-key="zoom-level">表示倍率</span>: <span id="zoom-level-value">100</span>%</label>
+                                <input type="range" id="zoom-slider" min="10" max="200" value="100" step="5" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                            </div>
                             <div class="flex items-center justify-between">
                                 <label for="title-visible-toggle" class="text-sm font-medium text-gray-700" data-lang-key="show-title">タイトルを表示</label>
                                 <input type="checkbox" id="title-visible-toggle" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
                             </div>
+                            <div class="flex items-center justify-between">
+                                <label for="grid-visible-toggle" class="text-sm font-medium text-gray-700" data-lang-key="show-grid">グリッドを表示</label>
+                                <input type="checkbox" id="grid-visible-toggle" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                            </div>
                             <div>
                                 <label for="grid-size" class="block text-sm font-medium text-gray-700"><span data-lang-key="grid-width">グリッド幅</span>: <span id="grid-size-value">5</span>px</label>
                                 <input type="range" id="grid-size" min="0" max="50" value="5" step="5" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
-                            </div>
-                            <div class="border-t pt-4">
-                                <button id="auto-adjust-btn" class="w-full px-4 py-2 rounded-lg shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 bg-indigo-500 hover:bg-indigo-600 text-white focus:ring-indigo-400" data-lang-key="auto-adjust"></button>
                             </div>
                             <div>
                                 <h3 class="text-md font-semibold mb-2" data-lang-key="bg-settings">背景設定</h3>
@@ -118,18 +128,15 @@
                                         <input type="range" id="bg-scale" min="0.1" max="5" step="0.1" value="1" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
                                     </div>
                                     <div>
-                                        <label for="bg-pos-x" class="block text-sm font-medium text-gray-700"><span data-lang-key="bg-pos-x">位置（横）</span>: <span id="bg-pos-x-value">0</span>px</label>
+                                        <label class="block text-sm font-medium text-gray-700" data-lang-key="bg-pos-xy">位置（横/縦）</label>
                                         <input type="range" id="bg-pos-x" min="-1000" max="1000" value="0" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                                        <input type="range" id="bg-pos-y" min="-1000" max="1000" value="0" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer mt-2">
                                     </div>
-                                     <div>
-                                        <label for="bg-pos-y" class="block text-sm font-medium text-gray-700"><span data-lang-key="bg-pos-y">位置（縦）</span>: <span id="bg-pos-y-value">0</span>px</label>
-                                        <input type="range" id="bg-pos-y" min="-1000" max="1000" value="0" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                                    <div class="pt-2">
+                                        <button class="w-full reset-settings-btn px-4 py-2 rounded-lg shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 bg-yellow-500 hover:bg-yellow-600 text-gray-800 focus:ring-yellow-400" data-lang-key="reset-settings" data-reset-type="field">設定をリセット</button>
                                     </div>
                                     <button id="remove-bg-btn" class="w-full mt-2 px-4 py-2 rounded-lg shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 text-white bg-red-500 hover:bg-red-600 focus:ring-red-400" data-lang-key="bg-remove">背景を削除</button>
                                 </div>
-                            </div>
-                             <div class="pt-2">
-                                <button class="w-full reset-settings-btn px-4 py-2 rounded-lg shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 bg-yellow-500 hover:bg-yellow-600 text-gray-800 focus:ring-yellow-400" data-lang-key="reset-settings" data-reset-type="field">設定をリセット</button>
                             </div>
                         </div>
                     </div>
@@ -479,6 +486,8 @@ class CanvasManager {
         this.resizingObject = null;
         this.draggingTextObject = null;
         this.backgroundImage = null;
+        this.imageCounter = 0; 
+        this.zoom = 1.0;
     }
 
     init() {
@@ -513,12 +522,18 @@ class CanvasManager {
         this.app.update();
     }
     
+    setZoom(level) {
+        this.zoom = level;
+        this.canvas.style.transform = `scale(${this.zoom})`;
+        this.app.update();
+    }
+
     draw() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         
         this.drawBackground(this.ctx);
 
-        if (this.app.settings.config.gridSize > 0) {
+        if (this.app.settings.config.gridVisible) {
             this.drawGrid(this.ctx, this.canvas.width, this.canvas.height);
         }
 
@@ -573,7 +588,7 @@ class CanvasManager {
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     const img = new Image();
-                    img.onload = () => resolve(img);
+                    img.onload = () => resolve({img, name: file.name});
                     img.onerror = reject;
                     img.src = e.target.result;
                 };
@@ -588,10 +603,10 @@ class CanvasManager {
             let rowMaxHeight = 0;
             const gap = 10;
 
-            loadedImages.forEach(img => {
+            loadedImages.forEach(imageData => {
                 const tempImageObj = new ImageObject({
                     app: this.app,
-                    image: img,
+                    image: imageData.img,
                     x: 0, y: 0
                 });
                 
@@ -603,9 +618,11 @@ class CanvasManager {
 
                 const newImage = new ImageObject({
                     app: this.app,
-                    image: img,
+                    image: imageData.img,
                     x: currentX,
-                    y: currentY
+                    y: currentY,
+                    filename: imageData.name,
+                    creationIndex: this.imageCounter++
                 });
 
                 this.objects.push(newImage);
@@ -675,8 +692,8 @@ class CanvasManager {
     getMousePos(e) {
         const canvasRect = this.canvas.getBoundingClientRect();
         return {
-            x: e.clientX - canvasRect.left,
-            y: e.clientY - canvasRect.top
+            x: (e.clientX - canvasRect.left) / this.zoom,
+            y: (e.clientY - canvasRect.top) / this.zoom
         };
     }
     
@@ -770,7 +787,7 @@ class CanvasManager {
         const container = document.getElementById('canvas-container');
 
         if (this.draggingTextObject) {
-            this.draggingTextObject.move(e.movementX, e.movementY);
+            this.draggingTextObject.move(e.movementX / this.zoom, e.movementY / this.zoom);
             this.app.update();
             return;
         }
@@ -793,7 +810,7 @@ class CanvasManager {
         }
         
         if (this.draggingObject) {
-            this.draggingObject.move(e.movementX, e.movementY);
+            this.draggingObject.move(e.movementX / this.zoom, e.movementY / this.zoom);
             this.app.update();
             return;
         }
@@ -880,6 +897,8 @@ class CanvasManager {
         const images = this.objects.filter(obj => obj.type === 'ImageObject');
         if (images.length === 0) return;
 
+        images.sort((a, b) => a.creationIndex - b.creationIndex);
+
         const frame = this.exportFrame;
         const gap = this.app.settings.config.gridSize;
         const padding = gap;
@@ -935,11 +954,17 @@ class CanvasManager {
             }
         }
 
+        this.imageCounter = 0; 
         const objectPromises = state.objects.map(objData => {
             switch(objData.type) {
                 case 'Title':
                     return Promise.resolve(Title.fromJSON(objData, this.app));
                 case 'ImageObject':
+                    if (objData.creationIndex === undefined) {
+                        objData.creationIndex = this.imageCounter++;
+                    } else if (objData.creationIndex >= this.imageCounter) {
+                        this.imageCounter = objData.creationIndex + 1;
+                    }
                     return ImageObject.fromJSON(objData, this.app);
                 case 'ExportFrame':
                     return Promise.resolve(ExportFrame.fromJSON(objData, this.app));
@@ -1021,14 +1046,20 @@ class ImageObject extends DraggableObject {
         super(config);
         this.type = 'ImageObject';
         this.image = config.image;
+        this.filename = config.filename || '';
         this.aspectRatio = this.image ? this.image.height / this.image.width : 1;
         this.border = config.border ? { ...config.border } : { ...this.app.settings.config.imageBorder };
+        this.creationIndex = config.creationIndex; 
         
+        // ★ 修正点: テキストオブジェクトの初期化を修正
+        const textStyleCopy = JSON.parse(JSON.stringify(this.app.state.lastImageTextStyle));
+        const initialTextConfig = config.text ? JSON.parse(JSON.stringify(config.text)) : { text: '' };
         this.text = new TextObject({
             app: this.app,
-            ...this.app.state.lastImageTextStyle,
-            ...(config.text || { text: '' }) 
+            ...textStyleCopy,
+            ...initialTextConfig
         });
+
         this.text.x = this.width / 2;
         this.text.y = this.height / 2;
 
@@ -1154,14 +1185,19 @@ class ImageObject extends DraggableObject {
     }
     
     onDoubleClick() {
+        if (!this.text.text && this.filename) {
+            this.text.text = this.filename.split('.').slice(0, -1).join('.');
+        }
         this.app.enterEditMode('imageText', this.text);
     }
 
     toJSON() {
         const data = super.toJSON();
         data.imageSrc = this.image.src;
+        data.filename = this.filename;
         data.border = this.border;
         data.text = this.text.toJSON();
+        data.creationIndex = this.creationIndex;
         return data;
     }
 
@@ -1455,6 +1491,7 @@ class SettingsManager {
         return {
             language: 'ja',
             titleVisible: true,
+            gridVisible: true,
             gridSize: 5,
             maxImageSize: 240,
             imageBorder: {
@@ -1504,7 +1541,9 @@ class SettingsManager {
     bindUI() {
         const settings = [
             { id: 'title-visible-toggle', key: 'titleVisible', type: 'checkbox' },
+            { id: 'grid-visible-toggle', key: 'gridVisible', type: 'checkbox' },
             { id: 'grid-size', key: 'gridSize', type: 'range' },
+            { id: 'zoom-slider', key: 'zoom', type: 'range' },
             { id: 'max-img-size', key: 'maxImageSize', type: 'range' },
             { id: 'img-border-width', key: 'imageBorder.width', type: 'range' },
             { id: 'img-border-color', key: 'imageBorder.color', type: 'color' },
@@ -1519,7 +1558,15 @@ class SettingsManager {
             const el = document.getElementById(setting.id);
             if (!el) return;
             const eventType = (el.type === 'range' || el.type === 'color') ? 'input' : 'change';
+            
             el.addEventListener(eventType, (e) => {
+                if (setting.key === 'zoom') {
+                    const zoomLevel = parseInt(e.target.value) / 100;
+                    this.app.canvasManager.setZoom(zoomLevel);
+                    document.getElementById('zoom-level-value').textContent = e.target.value;
+                    return;
+                }
+
                 let value;
                 switch(setting.type) {
                     case 'checkbox': value = e.target.checked; break;
@@ -1547,6 +1594,7 @@ class SettingsManager {
                 
                 if (resetType === 'field') {
                     this.config.titleVisible = defaults.titleVisible;
+                    this.config.gridVisible = defaults.gridVisible;
                     this.config.gridSize = defaults.gridSize;
                     this.config.background = { ...defaults.background };
                     this.app.canvasManager.removeBackgroundImage();
@@ -1566,6 +1614,7 @@ class SettingsManager {
     updateUI() {
         const ids = {
             'title-visible-toggle': 'titleVisible',
+            'grid-visible-toggle': 'gridVisible',
             'grid-size': 'gridSize',
             'max-img-size': 'maxImageSize',
             'img-border-width': 'imageBorder.width',
@@ -1588,9 +1637,6 @@ class SettingsManager {
         }
         
         this.config.imageBorder.enabled = true;
-        
-        const gridSizeEl = document.getElementById('grid-size');
-        this.config.gridVisible = gridSizeEl.value > 0;
     }
 
     setConfigValue(key, value) {
@@ -1636,7 +1682,7 @@ class UIManager {
                 'enable-shadow': '影をつける', 'stroke': '縁取り', 'enable-stroke': '縁取りをつける', 'reset-text-pos': 'テキスト位置を中央に戻す',
                 'help-title': '操作方法', 'help-title-settings': '設定変更', 'help-desc-settings': '左の設定パネルから変更できます。<br>変更した設定はアプリを閉じても維持されます（ただし「保存」ボタンでDL推奨です）。<br>画像設定や画像内テキストを変更した場合、次に追加された画像から設定が適用されます。',
                 'help-title-add-img': '画像追加', 'help-desc-add-img': 'PC上の画像ファイルを右側のフィールドにドラッグ＆ドロップします。画像は分かりやすいフォルダにまとめておきましょう。画像は右下のハンドルをドラッグしてリサイズできます。',
-                'help-title-reorder': '並び替え', 'help-desc-reorder': 'フィールド上の画像とタイトルはドラッグ＆ドロップで順序を入れ替えられます。<br>また、「画像を自動で整列」ボタンを押すと、設定したグリッド幅を最小の間隔として、画像を自動で整列します。',
+                'help-title-reorder': '並び替え', 'help-desc-reorder': 'フィールド上の画像とタイトルはドラッグ＆ドロップで順序を入れ替えられます。<br>また、「画像を自動で整列」ボタンを押すと、画像が追加された順番で、設定したグリッド幅を最小の間隔として自動で整列します。',
                 'help-title-edit-title': 'タイトルの編集', 'help-desc-edit-title': 'タイトルテキストをダブルクリックすると、編集パネルが出てきます。',
                 'help-title-edit-img-text': '画像内のテキスト編集', 'help-desc-edit-img-text': '画像をダブルクリックすると、左パネルに調整メニューが表示されます。調整後、「設定に戻る」で設定パネルに戻ります。',
                 'help-title-delete-img': '画像削除', 'help-desc-delete-img': '画像にマウスを乗せると右上に表示される×ボタンで削除します。',
@@ -1644,13 +1690,14 @@ class UIManager {
                 'help-title-export': '画像出力', 'help-desc-export': '上部の「画像出力」ボタンで、現在のフィールドを一枚の画像として保存（ダウンロード）できます。',
                 'export-title': '画像出力', 'export-width': '出力幅 (px)',
                 'export-format': 'フォーマット', 'cancel': 'キャンセル', 'export-confirm': '出力', 'export-area-label': '出力範囲:', 'confirm-reset': 'このセクションの設定を初期状態に戻しますか？',
-                'show-grid': 'グリッドを表示', 'field-settings': 'フィールド設定', 'bg-settings': '背景設定', 'bg-drop-text': 'ここに背景画像をドロップ', 'bg-opacity': '画像透過度', 'bg-scale': '拡大率', 'bg-pos-x': '位置（横）', 'bg-pos-y': '位置（縦）',
+                'show-grid': 'グリッドを表示', 'field-settings': 'フィールド設定', 'bg-settings': '背景設定', 'bg-drop-text': 'ここに背景画像をドロップ', 'bg-opacity': '画像透過度', 'bg-scale': '拡大率', 'bg-pos-xy': '位置（横/縦）',
                 'export-include-grid': 'グリッドを出力に含める', 'bg-remove': '背景を削除', 'return-to-settings': '設定に戻る',
                 'apply-to-all': '全てのテキストに変更を適用',
                 'apply-image-settings-to-all': '全ての画像に変更を適用',
                 'text-placeholder': 'テキスト',
                 'auto-adjust': '画像を自動で整列',
-                'export-transparent-bg': '背景を透過する (PNGのみ)'
+                'export-transparent-bg': '背景を透過する (PNGのみ)',
+                'zoom-level': '表示倍率'
             },
             en: {
                 'app-title': 'Simple Image Table Creator', 'save': 'Save', 'load': 'Load', 'export': 'Export Image', 'help': 'Help',
@@ -1661,7 +1708,7 @@ class UIManager {
                 'enable-shadow': 'Enable Shadow', 'stroke': 'Stroke', 'enable-stroke': 'Enable Stroke', 'reset-text-pos': 'Reset Text Position',
                 'help-title': 'How to Use', 'help-title-settings': 'Changing Settings', 'help-desc-settings': 'You can change settings from the left panel.<br>Changed settings are maintained even if you close the app (however, downloading with the "Save" button is recommended).<br>If you change image settings or image text, the settings will be applied to newly added images.',
                 'help-title-add-img': 'Adding Images', 'help-desc-add-img': 'Drag and drop image files from your PC onto the right field. It\'s a good idea to keep images in an easy-to-find folder. Images can be resized by dragging the bottom-right handle.',
-                'help-title-reorder': 'Reordering', 'help-desc-reorder': 'Images and titles on the field can be reordered by drag and drop.<br>Also, click the "Auto Align" button to automatically align images using the current grid size as the minimum spacing.',
+                'help-title-reorder': 'Reordering', 'help-desc-reorder': 'Images and titles on the field can be reordered by drag and drop.<br>Also, click the "Auto Align" button to automatically align images in the order they were added, using the current grid size as the minimum spacing.',
                 'help-title-edit-title': 'Editing the Title', 'help-desc-edit-title': 'Double-click the title text to open the editing panel.',
                 'help-title-edit-img-text': 'Editing Text in Images', 'help-desc-edit-img-text': 'Double-click an image to display the adjustment menu in the left panel. After adjusting, return to the settings panel with "Return to Settings".',
                 'help-title-delete-img': 'Deleting Images', 'help-desc-delete-img': 'Delete an image by clicking the "x" button that appears in the upper right corner when you mouse over it.',
@@ -1669,13 +1716,14 @@ class UIManager {
                 'help-title-export': 'Exporting Images', 'help-desc-export': 'You can save (download) the current field as a single image with the "Export Image" button at the top.',
                 'export-title': 'Export Image', 'export-width': 'Export Width (px)',
                 'export-format': 'Format', 'cancel': 'Cancel', 'export-confirm': 'Export', 'export-area-label': 'Export Area:',
-                'show-grid': 'Show Grid', 'field-settings': 'Field Settings', 'bg-settings': 'Background Settings', 'bg-drop-text': 'Drop background image here', 'bg-opacity': 'Image Opacity', 'bg-scale': 'Scale', 'bg-pos-x': 'Position (Horizontal)', 'bg-pos-y': 'Position (Vertical)',
+                'show-grid': 'Show Grid', 'field-settings': 'Field Settings', 'bg-settings': 'Background Settings', 'bg-drop-text': 'Drop background image here', 'bg-opacity': 'Image Opacity', 'bg-scale': 'Scale', 'bg-pos-xy': 'Position (X/Y)',
                 'export-include-grid': 'Include grid in export', 'bg-remove': 'Remove Background', 'return-to-settings': 'Return to Settings',
                 'apply-to-all': 'Apply to All Texts',
                 'apply-image-settings-to-all': 'Apply to All Images',
                 'text-placeholder': 'Text',
                 'auto-adjust': 'Auto Align Images',
-                'export-transparent-bg': 'Transparent Background (PNG only)'
+                'export-transparent-bg': 'Transparent Background (PNG only)',
+                'zoom-level': 'Zoom Level'
             }
         };
     }
@@ -1746,7 +1794,6 @@ class UIManager {
             this.applyTextStyleToAll();
         });
         
-        // ★ 修正点: PNG選択時のみ透過オプションを表示するロジック
         const exportFormatSelect = document.getElementById('export-format');
         const transparentBgContainer = document.getElementById('transparent-bg-container');
         const toggleTransparentBgOption = () => {
@@ -1757,7 +1804,7 @@ class UIManager {
             }
         };
         exportFormatSelect.addEventListener('change', toggleTransparentBgOption);
-        toggleTransparentBgOption(); // 初期表示
+        toggleTransparentBgOption(); 
     }
 
     setLanguage(lang) {
@@ -2059,7 +2106,6 @@ class ExportManager {
         exportCanvas.height = exportHeight;
         const exportCtx = exportCanvas.getContext('2d');
         
-        // ★ 修正点: PNG形式で透過が選択されている場合は背景を描画しない
         if (format !== 'image/png' || !transparentBg) {
             exportCtx.fillStyle = '#ffffff';
             exportCtx.fillRect(0, 0, exportWidth, exportHeight);
